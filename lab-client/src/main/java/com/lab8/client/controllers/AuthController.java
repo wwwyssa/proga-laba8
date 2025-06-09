@@ -105,7 +105,7 @@ public class AuthController {
         return true;
     }
 
-    private List<String> validatePassword(String password) {
+    private List<String> validatePassword(String password) { //todo я считаю нам это нафиг не надо, это для крутых
         var errors = new ArrayList<String>();
         if (password.length() < 8) {
             errors.add(localizator.getKeyString("PasswordMin6"));
