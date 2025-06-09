@@ -66,4 +66,36 @@ public class AuthenticationManager {
             }
         }
     }
+
+
+    public static User sendAuthenticationRequest(ConnectionManager connectionManager, User user, String inputCommand) throws IOException, ClassNotFoundException {
+        Request request = new Request(inputCommand, user);
+        connectionManager.send(request);
+        Response authResponse = connectionManager.receive();
+        if (authResponse.getExecutionStatus() == null) {
+            return null;
+        }
+        if (authResponse.getExecutionStatus().getExitCode()) {
+            String id = authResponse.getExecutionStatus().getAnswer().toString();
+            user.setId(Integer.parseInt(id));
+            return user;
+        } else {
+            return null;
+        }
+    }
+
+
+
+    public static User authenticateUser(ConnectionManager networkManager, String name, String pass, String inputCommand) throws IOException, ClassNotFoundException {
+        String username = name;
+        String password = getHash(pass);
+        User user = sendAuthenticationRequest(networkManager, new User(username, password), inputCommand);
+
+        if (user != null) {
+            return user;
+        }
+        return null;
+    }
+
+
 }
