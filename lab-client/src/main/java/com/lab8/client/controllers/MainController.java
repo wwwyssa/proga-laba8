@@ -154,7 +154,6 @@ public class MainController {
             localizator.setBundle(ResourceBundle.getBundle("locales/gui", localeMap.get(newValue)));
             changeLanguage();
         });
-
         idColumn.setCellValueFactory(product -> new SimpleLongProperty(product.getValue().getId()).asObject());
         ownerColumn.setCellValueFactory(product -> new SimpleStringProperty(product.getValue().getCreator()));
         nameColumn.setCellValueFactory(product -> new SimpleStringProperty(product.getValue().getName()));
