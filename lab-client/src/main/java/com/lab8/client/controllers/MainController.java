@@ -45,7 +45,7 @@ import java.util.concurrent.Executors;
 
 public class MainController {
     private Localizator localizator;
-
+    private final UpdatingManager updatingManager = new UpdatingManager(this);
     private Runnable authCallback;
     private volatile boolean isRefreshing = true;
 
@@ -222,7 +222,7 @@ public class MainController {
             });
             return row;
         });
-        refresh();
+        updatingManager.refresh();
         //visualTab.setOnSelectionChanged(event -> visualise(false)); //todo тут должна быть визуализация коллекции
     }
 
@@ -235,7 +235,7 @@ public class MainController {
     public void logout() { //TODO нарисовать кнопочку
         SessionHandler.setCurrentUser(null);
         SessionHandler.setCurrentLanguage("Русский");
-        setRefreshing(false);
+        updatingManager.stopRefreshing();
         authCallback.run();
     }
 
@@ -244,7 +244,7 @@ public class MainController {
         try {
             ConnectionManager.getInstance().send(new Request("Help", SessionHandler.getCurrentUser()));
             Response response = ConnectionManager.getInstance().receive();
-            String help = (String) response.getExecutionStatus().getAnswer().getAnswer(); //todo дай бог оно возвращает строку
+            //String help = (String) response.getExecutionStatus().getAnswer().getAnswer(); //todo в идеале сделать так, чтобы сервер отправлял разный результат в зависимости от языка
             DialogManager.createAlert(localizator.getKeyString("Help"), localizator.getKeyString("HelpResult"), Alert.AlertType.INFORMATION, true);
         } catch (ClassNotFoundException | IOException e) {
             DialogManager.alert("UnavailableError", localizator);
@@ -295,7 +295,7 @@ public class MainController {
                 DialogManager.alert("UnavailableError", localizator);
             }
         }
-        loadCollection();
+        updatingManager.loadCollection();
     }
 
     @FXML
@@ -374,39 +374,6 @@ public class MainController {
         this.authCallback = authCallback;
     }
 
-    public void refresh() {
-        ExecutorService refresher = Executors.newSingleThreadExecutor();
-        refresher.submit(() -> {
-            while (isRefreshing()) {
-                Platform.runLater(this::loadCollection);
-                try {
-                    Thread.sleep(10_000);
-                } catch (InterruptedException ignored) {
-                }
-            }
-        });
-    }
-
-    public boolean isRefreshing() {
-        return isRefreshing;
-    }
-
-    public void setRefreshing(boolean refreshing) {
-        isRefreshing = refreshing;
-    }
-
-    private void loadCollection() {
-        try {
-            System.out.println("Refreshing collection...");
-            ConnectionManager.getInstance().send(new Request("show", SessionHandler.getCurrentUser()));
-            Response response = ConnectionManager.getInstance().receive();
-            setCollection((List<Product>) response.getExecutionStatus().getAnswer().getAnswer()); //todo pizdec
-            //visualise(true);
-        } catch (ClassNotFoundException | IOException e) {
-            DialogManager.alert("UnavailableError", localizator);
-        }
-    }
-
     public void setEditController(EditController editController) {
         this.editController = editController;
         editController.changeLanguage();
@@ -414,5 +381,9 @@ public class MainController {
 
     public void setLocalizator(Localizator localizator) {
         this.localizator = localizator;
+    }
+
+    public Localizator getLocalizator() {
+        return localizator;
     }
 }
