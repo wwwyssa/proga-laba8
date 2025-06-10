@@ -1,6 +1,5 @@
 package com.lab8.client.managers;
 
-
 import com.lab8.client.util.Console;
 import com.lab8.common.util.Request;
 import com.lab8.common.util.Response;
@@ -28,10 +27,10 @@ public class AuthenticationManager {
         }
     }
 
-    public static User sendAuthenticationRequest(ConnectionManager connectionManager, Console console, User user, String inputCommand) throws IOException, ClassNotFoundException {
+    public static User sendAuthenticationRequest(Console console, User user, String inputCommand) throws IOException, ClassNotFoundException {
         Request request = new Request(inputCommand, user);
-        connectionManager.send(request);
-        Response authResponse = connectionManager.receive();
+        ConnectionManager.getInstance().send(request);
+        Response authResponse = ConnectionManager.getInstance().receive();
         if (authResponse.getExecutionStatus() == null) {
             console.printError("Ошибка: сервер не ответил на запрос.");
             return null;
@@ -47,7 +46,7 @@ public class AuthenticationManager {
         }
     }
 
-    public static User authenticateUser(ConnectionManager networkManager, Console console) throws IOException, ClassNotFoundException {
+    public static User authenticateUser(Console console) throws IOException, ClassNotFoundException {
         while (true) {
             console.println("Введите команду 'register' для регистрации или 'login' для авторизации:");
             String inputCommand = console.input().trim().toLowerCase();
@@ -56,7 +55,7 @@ public class AuthenticationManager {
                 String username = console.input();
                 console.println("Введите пароль для авторизации:");
                 String password = getHash(console.input());
-                User user = sendAuthenticationRequest(networkManager, console, new User(username, password), inputCommand);
+                User user = sendAuthenticationRequest(console, new User(username, password), inputCommand);
 
                 if (user != null) {
                     return user;
@@ -68,10 +67,10 @@ public class AuthenticationManager {
     }
 
 
-    public static User sendAuthenticationRequest(ConnectionManager connectionManager, User user, String inputCommand) throws IOException, ClassNotFoundException {
+    public static User sendAuthenticationRequest(User user, String inputCommand) throws IOException, ClassNotFoundException {
         Request request = new Request(inputCommand, user);
-        connectionManager.send(request);
-        Response authResponse = connectionManager.receive();
+        ConnectionManager.getInstance().send(request);
+        Response authResponse = ConnectionManager.getInstance().receive();
         if (authResponse.getExecutionStatus() == null) {
             return null;
         }
@@ -86,10 +85,10 @@ public class AuthenticationManager {
 
 
 
-    public static User authenticateUser(ConnectionManager networkManager, String name, String pass, String inputCommand) throws IOException, ClassNotFoundException {
+    public static User authenticateUser(String name, String pass, String inputCommand) throws IOException, ClassNotFoundException {
         String username = name;
         String password = getHash(pass);
-        User user = sendAuthenticationRequest(networkManager, new User(username, password), inputCommand);
+        User user = sendAuthenticationRequest(new User(username, password), inputCommand);
 
         if (user != null) {
             return user;

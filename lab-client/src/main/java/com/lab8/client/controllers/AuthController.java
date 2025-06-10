@@ -1,28 +1,36 @@
 package com.lab8.client.controllers;
 
-
 import com.lab8.client.Auth.SessionHandler;
 import com.lab8.client.managers.AuthenticationManager;
-import com.lab8.client.managers.ConnectionManager;
 import com.lab8.client.managers.DialogManager;
 import com.lab8.client.util.Localizator;
 import com.lab8.client.util.exceptions.UserAlreadyExistsException;
+import com.lab8.common.util.User;
+
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ComboBox;
 
-import com.lab8.common.util.User;
 import java.io.IOException;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class AuthController {
     private Runnable callback;
     private Localizator localizator;
-    private ConnectionManager connectionManager;
     private final HashMap<String, Locale> localeMap = new HashMap<>() {{
         put("Русский", new Locale("ru", "RU"));
-        put("English(IN)", new Locale("en", "IN"));
+        put("English(CA)", new Locale("en", "CA"));
+        put("Latvian", new Locale("lv"));
+        put("Slovenian", new Locale("sl"));
     }};
 
     @FXML
@@ -56,7 +64,7 @@ public class AuthController {
             }
         });
         passwordField.textProperty().addListener((observableValue, oldValue, newValue) -> {
-            if (!newValue.matches("\\S*")) {
+            if (!newValue.matches("\\S*")) { // todo чем не понравились пробелы в пароле
                 passwordField.setText(oldValue);
             }
         });
@@ -64,44 +72,38 @@ public class AuthController {
 
     @FXML
     void ok() {
-        if (signUpButton.isSelected()) {
-            register();
-        } else {
-            //authenticate();
-        }
+        boolean isRegistration = signUpButton.isSelected();
+        authenticate(isRegistration);
     }
 
-    public void register() {
+    public void authenticate(boolean isRegistration) {
         try {
-            if (loginField.getText().length() < 1 || loginField.getText().length() > 40 || passwordField.getText().length() < 1) {
-                //throw new InvalidFormException();
-            }
+            if (!validateLogin()) return;
+            String Command = isRegistration ? "register" : "login";
+            User user = AuthenticationManager.authenticateUser(loginField.getText(), passwordField.getText(), Command);
 
-            if (!validateRegister()) return;
-            User user = AuthenticationManager.authenticateUser(connectionManager, loginField.getText(), passwordField.getText(), "register");
             if (user == null) {
                 throw new UserAlreadyExistsException();
             }
-            //var user = new User(-1, loginField.getText(), passwordField.getText());
-
 
             SessionHandler.setCurrentUser(user);
             SessionHandler.setCurrentLanguage(languageComboBox.getValue());
-            DialogManager.info("RegisterSuccess", localizator);
-
+            DialogManager.info(isRegistration ? "RegisterSuccess" : "LoginSuccess", localizator);
             callback.run();
 
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
+        } catch (ClassNotFoundException | IOException e) {
             throw new RuntimeException(e);
         } catch (UserAlreadyExistsException e) {
-            DialogManager.alert("UserAlreadyExists", localizator);
+            DialogManager.alert(isRegistration ? "UserAlreadyExists" : "UserNotFound", localizator);
         }
     }
 
-    private boolean validateRegister() {
-        // Validate login
+
+    private boolean validateLogin() {
+        if (loginField.getText().isEmpty() || loginField.getText().length() > 40) {
+            DialogManager.alert("LoginFieldError", localizator); // todo добавить в локализацию
+            return false;
+        }
         return true;
     }
 
@@ -134,7 +136,6 @@ public class AuthController {
     }
 
 
-
     public void changeLanguage() {
         titleLabel.setText(localizator.getKeyString("AuthTitle"));
         loginField.setPromptText(localizator.getKeyString("LoginField"));
@@ -149,9 +150,5 @@ public class AuthController {
 
     public void setLocalizator(Localizator localizator) {
         this.localizator = localizator;
-    }
-
-    public void setClient(ConnectionManager connectionManager) {
-        this.connectionManager = connectionManager;
     }
 }

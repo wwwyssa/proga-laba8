@@ -1,6 +1,5 @@
 package com.lab8.client;
 
-
 import com.lab8.client.managers.AuthenticationManager;
 import com.lab8.client.managers.ConnectionManager;
 import com.lab8.client.util.Console;
@@ -18,7 +17,9 @@ import com.lab8.client.util.DefaultConsole;
 import com.lab8.client.util.ElementValidator;
 import com.lab8.client.util.FileConsole;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.util.Map;
@@ -35,7 +36,7 @@ public final class Client {
     private static final int SERVER_PORT = 15719;
     private static final String SERVER_HOST = "localhost";
     private static Map<String, Pair<ArgumentValidator, Boolean>> commandsData;
-    private static final ConnectionManager networkManager = new ConnectionManager(SERVER_PORT, SERVER_HOST);
+    private static final ConnectionManager networkManager = ConnectionManager.getInstance();
     private static int scriptStackCounter = 0;
     private static int attempts = 1;
     private static User user = new User("123", "123");
@@ -48,10 +49,10 @@ public final class Client {
                 attempts = 1;
                 console.println("Connected to " + SERVER_HOST + ":" + SERVER_PORT);
                 if (attempts == 1){
-                    user = AuthenticationManager.authenticateUser(networkManager, console);
+                    user = AuthenticationManager.authenticateUser(console);
                     console.println("Вы успешно авторизованы как " + user.getName() + " " + user.getId());
                 } else{
-                    AuthenticationManager.sendAuthenticationRequest(networkManager, console, user, "login");
+                    AuthenticationManager.sendAuthenticationRequest(console, user, "login");
                     attempts = 1;
                 }
                 while (true) {
@@ -171,12 +172,6 @@ public final class Client {
             return new Request(inputCommand, user);
         }
     }
-
-
-
-
-
-
 
     /**
      * Выполняет файл скрипта и обрабатывает его команды.

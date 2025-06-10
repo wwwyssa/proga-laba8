@@ -17,7 +17,7 @@ public class Product implements Comparable<Product>, Validatable, Serializable {
 
     private long id; // Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
 
-    private int creator; //
+    private int creator; //fixme поменять на имя владельца
 
     private String name; // Поле не может быть null, Строка не может быть пустой
 
@@ -42,7 +42,6 @@ public class Product implements Comparable<Product>, Validatable, Serializable {
 
     private Organization manufacturer; // Поле может быть null
 
-    private int creatorId;
     /**
      * Пустой конструктор для JAXB.
      */
@@ -78,7 +77,7 @@ public class Product implements Comparable<Product>, Validatable, Serializable {
 
     // Геттеры и сеттеры
 
-    public int setCreator(int creator) {
+    public int setCreator(int creator) { // fixme ура рейдерский захват
         this.creator = creator;
         return creator;
     }
@@ -86,9 +85,6 @@ public class Product implements Comparable<Product>, Validatable, Serializable {
     public int getCreator() {
         return creator;
     }
-
-
-
 
 
     /**
@@ -237,6 +233,7 @@ public class Product implements Comparable<Product>, Validatable, Serializable {
                 "\nmanufactureCost=" + manufactureCost +
                 "\nunitOfMeasure=" + unitOfMeasure +
                 "\nmanufacturer=" + manufacturer +
+                "\ncreator=" + creator +
                 '}';
     }
 

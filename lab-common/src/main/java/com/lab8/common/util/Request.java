@@ -9,10 +9,7 @@ public class Request implements Serializable {
     private static final long serialVersionUID = 11L;
     private String string;
     private Product product = null;
-    private User user = null;
-    public Request(String string) {
-        this.string = string;
-    }
+    private final User user;
 
     public Request(String string, Product product, User user) {
         this.string = string;
