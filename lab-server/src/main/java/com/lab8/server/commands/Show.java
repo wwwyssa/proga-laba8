@@ -1,17 +1,10 @@
 package com.lab8.server.commands;
 
-import com.lab8.common.models.Product;
 import com.lab8.common.util.User;
-import com.lab8.common.util.executions.AnswerString;
 import com.lab8.common.util.executions.ExecutionResponse;
 import com.lab8.common.util.executions.ListAnswer;
 import com.lab8.common.validators.NoArgumentsValidator;
 import com.lab8.server.managers.CollectionManager;
-
-import java.util.List;
-
-import static java.lang.Thread.sleep;
-
 
 /**
  * Команда 'show'. Выводит все элементы коллекции.
