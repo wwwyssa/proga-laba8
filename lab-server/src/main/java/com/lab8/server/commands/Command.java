@@ -98,9 +98,9 @@ public abstract class Command<T extends ArgumentValidator> implements Executable
     }
 
 
-    public ExecutionResponse execute(String arg, User user) {
+    public ExecutionResponse<?> execute(String arg, User user) {
         //start timer
-        ExecutionResponse argumentStatus = argumentValidator.validate(arg, getName());
+        ExecutionResponse<?> argumentStatus = argumentValidator.validate(arg, getName());
         if (argumentStatus.getExitCode()) {
             //stop time
             return innerExecute(arg, user);
@@ -109,5 +109,5 @@ public abstract class Command<T extends ArgumentValidator> implements Executable
         }
     }
 
-    public abstract ExecutionResponse innerExecute(String arguments, User user);
+    public abstract ExecutionResponse<?> innerExecute(String arguments, User user);
 }

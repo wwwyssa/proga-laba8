@@ -10,8 +10,6 @@ import com.lab8.common.validators.NoArgumentsValidator;
 import com.lab8.server.managers.CollectionManager;
 
 import java.util.ArrayList;
-
-
 /**
      * Класс команды для вывода значений поля partNumber всех элементов в порядке возрастания.
      */
@@ -34,8 +32,7 @@ import java.util.ArrayList;
          * @return Результат выполнения команды.
          */
         @Override
-        public ExecutionResponse innerExecute(String arguments, User user) {
-            String tmpString = "";
+        public ExecutionResponse<?> innerExecute(String arguments, User user) {
             ArrayList<Product> tmpList = new ArrayList<>();
             for (var product : collectionManager.getCollection().values()) {
                 tmpList.add(product);

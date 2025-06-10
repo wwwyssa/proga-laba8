@@ -7,7 +7,7 @@ import java.io.Serializable;
  * Класс, представляющий ответ выполнения.
  * @param <T> тип ответа
  */
-public class ExecutionResponse<T extends ValidAnswer> implements Serializable {
+public class ExecutionResponse<T extends ValidAnswer<?>> implements Serializable {
     @Serial
     private static final long serialVersionUID = 13L;
     private final boolean exitCode;

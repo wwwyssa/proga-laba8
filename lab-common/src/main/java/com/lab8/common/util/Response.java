@@ -1,7 +1,5 @@
 package com.lab8.common.util;
 
-
-
 import com.lab8.common.util.executions.ExecutionResponse;
 import com.lab8.common.validators.ArgumentValidator;
 
@@ -13,17 +11,17 @@ public class Response implements Serializable {
     @Serial
     private static final long serialVersionUID = 10L;
     private Map<String, Pair<ArgumentValidator, Boolean>> commandsData; // Второе значение - true, если команда требует ввода элемента коллекции
-    private ExecutionResponse executionStatus;
+    private ExecutionResponse<?> executionStatus;
 
     public Response(Map<String, Pair<ArgumentValidator, Boolean>> commandsData) {
         this.commandsData = commandsData;
     }
 
-    public Response(ExecutionResponse executionStatus) {
+    public Response(ExecutionResponse<?> executionStatus) {
         this.executionStatus = executionStatus;
     }
 
-    public ExecutionResponse getExecutionStatus() {
+    public ExecutionResponse<?> getExecutionStatus() {
         return executionStatus;
     }
 

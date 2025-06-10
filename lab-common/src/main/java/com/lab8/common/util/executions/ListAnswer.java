@@ -1,10 +1,10 @@
 package com.lab8.common.util.executions;
+
 import com.lab8.common.util.ValidAnswer;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
-
 
 public class ListAnswer implements ValidAnswer<List<?>>, Serializable {
     @Serial
@@ -16,7 +16,7 @@ public class ListAnswer implements ValidAnswer<List<?>>, Serializable {
     }
 
     @Override
-    public List getAnswer() {
+    public List<?> getAnswer() {
         return value;
     }
 }

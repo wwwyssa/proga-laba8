@@ -4,20 +4,10 @@ import com.lab8.common.util.ValidAnswer;
 import java.io.Serial;
 import java.io.Serializable;
 
-public class AnswerString implements ValidAnswer<String>, Serializable {
+public record AnswerString(String value) implements ValidAnswer<String>, Serializable {
 
     @Serial
     private static final long serialVersionUID = 14L;
-
-    private final String value;
-
-    public AnswerString(String value) {
-        this.value = value;
-    }
-
-    public String getValue() {
-        return value;
-    }
 
     @Override
     public String getAnswer() {

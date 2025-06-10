@@ -54,7 +54,7 @@ public class Asker {
             UnitOfMeasure unitOfMeasure = readUnitOfMeasure(defaultConsole);
             Organization manufacturer = readOrganization(defaultConsole);
             LocalDateTime date = LocalDateTime.now();
-            return new Product(id, name, coordinates, date, price, partNumber, manufactureCost, unitOfMeasure, manufacturer, 1);
+            return new Product(id, name, coordinates, date, price, partNumber, manufactureCost, unitOfMeasure, manufacturer, "");
         } catch (IllegalStateException | NoSuchElementException e) {
             defaultConsole.println("Ошибка ввода. Попробуйте еще раз");
             return null;

@@ -10,6 +10,9 @@
     <artifactId>lab-client</artifactId>
     <version>1</version>
     <name>lab-client</name>
+    <properties>
+        <javafx.version>17.0.15</javafx.version>
+    </properties>
 
     <dependencies>
         <dependency>

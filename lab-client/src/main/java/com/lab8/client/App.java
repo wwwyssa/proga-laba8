@@ -2,6 +2,7 @@ package com.lab8.client;
 
 import com.lab8.client.Auth.SessionHandler;
 import com.lab8.client.controllers.AuthController;
+import com.lab8.client.controllers.EditController;
 import com.lab8.client.controllers.MainController;
 import com.lab8.client.managers.ConnectionManager;
 import com.lab8.client.util.Console;
@@ -16,8 +17,6 @@ import javafx.scene.Parent;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 import java.io.IOException;
-import java.nio.BufferOverflowException;
-import java.nio.BufferUnderflowException;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Locale;
@@ -32,22 +31,21 @@ public class App extends Application {
     private static final ConnectionManager networkManager = ConnectionManager.getInstance();
     private static Map<String, Pair<ArgumentValidator, Boolean>> commandsData;
     public static void main(String[] args) {
-        try {
-            console.println("Запуск клиента...");
-            networkManager.connect();
-            commandsData = networkManager.receive().getCommandsMap();
-            launch();
-
-        } catch (BufferOverflowException | BufferUnderflowException | IOException e) {
-            console.printError("Не удалось подключиться к серверу. Проверьте, запущен ли сервер и доступен ли он по адресу " + networkManager.getPort() + ":" + networkManager.getHost() + " попытка " + attempts);
-            console.println(e.getMessage());//fixme не переподключается
+        console.println("Запуск клиента..."); //fixme клиент не может переподключиться после открытия окна
+        do {
             try {
-                Thread.sleep(2000);
-                attempts++;
-            } catch (InterruptedException ignored) {}
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+                networkManager.connect();
+                attempts = 1;
+                launch();
+            } catch (IOException e) {
+                console.printError("Не удалось подключиться к серверу. Проверьте, запущен ли сервер и доступен ли он по адресу " + networkManager.getPort() + ":" + networkManager.getHost() + " попытка " + attempts);
+                try {
+                    Thread.sleep(2000);
+                    attempts++;
+                } catch (InterruptedException ignored) {}
+            }
+        } while (attempts < 5);
+        System.exit(0);
     }
 
     @Override
@@ -58,17 +56,36 @@ public class App extends Application {
         authStage();
     }
 
+    public EditController createEditController() {
+        FXMLLoader editLoader = new FXMLLoader(getClass().getResource("/edit.fxml"));
+        Parent editRoot = loadFxml(editLoader);
+
+        Scene editScene = new Scene(editRoot);
+        Stage editStage = new Stage();
+        editStage.setScene(editScene);
+        editStage.setResizable(false);
+        editStage.setTitle("Edit Product");
+        EditController editController = editLoader.getController();
+
+        editController.setStage(editStage);
+        editController.setLocalizator(localizator);
+        return editController;
+    }
 
     public void startMain() {
-        var mainLoader = new FXMLLoader(getClass().getResource("/main.fxml"));
+        FXMLLoader mainLoader = new FXMLLoader(getClass().getResource("/main.fxml"));
         Parent mainRoot = loadFxml(mainLoader);
         MainController mainController = mainLoader.getController();
+        mainController.setLocalizator(localizator);
+        mainController.setEditController(createEditController());
+
         mainStage.setScene(new Scene(mainRoot));
+        mainStage.setTitle("Lab 8 Client");
         mainStage.show();
     }
 
     private void authStage() {
-        var authLoader = new FXMLLoader(getClass().getResource("/auth.fxml"));
+        FXMLLoader authLoader = new FXMLLoader(getClass().getResource("/auth.fxml"));
         Parent authRoot = loadFxml(authLoader);
         AuthController authController = authLoader.getController();
         authController.setCallback(this::startMain);
@@ -85,7 +102,7 @@ public class App extends Application {
         try {
             parent = loader.load();
         } catch (IOException e) {
-            console.println("Can't load " + loader + e);
+            console.printError("Can't load " + loader + e);
             System.exit(1);
         }
         return parent;

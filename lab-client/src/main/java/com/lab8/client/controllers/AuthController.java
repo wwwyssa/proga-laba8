@@ -17,9 +17,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ComboBox;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -60,12 +58,7 @@ public class AuthController {
         });
         loginField.textProperty().addListener((observableValue, oldValue, newValue) -> {
             if (!newValue.matches(".{0,40}")) {
-                loginField.setText(oldValue);
-            }
-        });
-        passwordField.textProperty().addListener((observableValue, oldValue, newValue) -> {
-            if (!newValue.matches("\\S*")) { // todo чем не понравились пробелы в пароле
-                passwordField.setText(oldValue);
+                loginField.setText(oldValue); //todo мб убрать это ограничение
             }
         });
     }
@@ -98,7 +91,6 @@ public class AuthController {
         }
     }
 
-
     private boolean validateLogin() {
         if (loginField.getText().isEmpty() || loginField.getText().length() > 40) {
             DialogManager.alert("LoginFieldError", localizator); // todo добавить в локализацию
@@ -106,35 +98,6 @@ public class AuthController {
         }
         return true;
     }
-
-    private List<String> validatePassword(String password) { //todo я считаю нам это нафиг не надо, это для крутых
-        var errors = new ArrayList<String>();
-        if (password.length() < 8) {
-            errors.add(localizator.getKeyString("PasswordMin6"));
-        }
-
-        int upChars = 0, lowChars = 0, digits = 0, special = 0;
-        for(var i = 0; i < password.length(); i++) {
-            var ch = password.charAt(i);
-            if (Character.isUpperCase(ch)) {
-                upChars++;
-            } else if(Character.isLowerCase(ch)) {
-                lowChars++;
-            } else if(Character.isDigit(ch)) {
-                digits++;
-            } else {
-                special++;
-            }
-        }
-
-        if (upChars == 0) errors.add(localizator.getKeyString("PasswordContainUp"));
-        if (lowChars == 0) errors.add(localizator.getKeyString("PasswordContainLow"));
-        if (digits == 0) errors.add(localizator.getKeyString("PasswordContainDigit"));
-        if (special == 0) errors.add(localizator.getKeyString("PasswordContainSpecial"));
-
-        return errors;
-    }
-
 
     public void changeLanguage() {
         titleLabel.setText(localizator.getKeyString("AuthTitle"));
@@ -146,7 +109,6 @@ public class AuthController {
     public void setCallback(Runnable callback) {
         this.callback = callback;
     }
-
 
     public void setLocalizator(Localizator localizator) {
         this.localizator = localizator;

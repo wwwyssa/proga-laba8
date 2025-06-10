@@ -2,7 +2,6 @@ package com.lab8.common.models;
 
 import com.lab8.common.util.Validatable;
 
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -17,7 +16,7 @@ public class Product implements Comparable<Product>, Validatable, Serializable {
 
     private long id; // Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
 
-    private int creator; //fixme поменять на имя владельца
+    private String creator;
 
     private String name; // Поле не может быть null, Строка не может быть пустой
 
@@ -61,7 +60,7 @@ public class Product implements Comparable<Product>, Validatable, Serializable {
      */
     public Product(long id, String name, Coordinates coordinates, LocalDateTime creationDate,
                    int price, String partNumber, int manufactureCost,
-                   UnitOfMeasure unitOfMeasure, Organization manufacturer, int creatorId) {
+                   UnitOfMeasure unitOfMeasure, Organization manufacturer, String creator) {
         this.id = id;
 
         this.name = name;
@@ -72,17 +71,12 @@ public class Product implements Comparable<Product>, Validatable, Serializable {
         this.manufactureCost = manufactureCost;
         this.unitOfMeasure = unitOfMeasure;
         this.manufacturer = manufacturer;
-        this.creator = creatorId;
+        this.creator = creator;
     }
 
     // Геттеры и сеттеры
 
-    public int setCreator(int creator) { // fixme ура рейдерский захват
-        this.creator = creator;
-        return creator;
-    }
-
-    public int getCreator() {
+    public String getCreator() {
         return creator;
     }
 
@@ -217,23 +211,19 @@ public class Product implements Comparable<Product>, Validatable, Serializable {
         return Objects.hash(id, name, coordinates, creationDate, price, partNumber, manufactureCost, unitOfMeasure, manufacturer);
     }
 
-    /**
-     * Возвращает строковое представление объекта Product.
-     * @return строковое представление объекта
-     */
     @Override
     public String toString() {
         return "Product{" +
                 "id=" + id +
-                "\nname='" + name + '\'' +
-                "\ncoordinates=" + coordinates +
-                "\ncreationDate=" + creationDate +
-                "\nprice=" + price +
-                "\npartNumber='" + partNumber + '\'' +
-                "\nmanufactureCost=" + manufactureCost +
-                "\nunitOfMeasure=" + unitOfMeasure +
-                "\nmanufacturer=" + manufacturer +
-                "\ncreator=" + creator +
+                ", creator='" + creator + '\'' +
+                ", name='" + name + '\'' +
+                ", coordinates=" + coordinates +
+                ", creationDate=" + creationDate +
+                ", price=" + price +
+                ", partNumber='" + partNumber + '\'' +
+                ", manufactureCost=" + manufactureCost +
+                ", unitOfMeasure=" + unitOfMeasure +
+                ", manufacturer=" + manufacturer +
                 '}';
     }
 

@@ -7,118 +7,124 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="660.0" prefWidth="500.0" style="-fx-background-color: #d2efff;" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.lab8.client.controllers.EditController">
-    <children>
-        <Label fx:id="titleLabel" alignment="CENTER" layoutX="70.0" layoutY="27.0" prefHeight="43.0" prefWidth="270.0" text="Редактирование" textAlignment="CENTER">
-            <font>
-                <Font name="Segoe UI Black" size="30.0" />
-            </font>
-        </Label>
+<AnchorPane prefHeight="700.0" prefWidth="500.0" style="-fx-background-color: #d2efff;"
+            xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.lab8.client.controllers.EditController">
+    <Label fx:id="titleLabel" alignment="CENTER" layoutX="70.0" layoutY="27.0" prefHeight="43.0" prefWidth="270.0"
+           text="Редактирование" textAlignment="CENTER">
+        <font>
+            <Font name="Segoe UI Black" size="30.0"/>
+        </font>
+    </Label>
 
-        <Label fx:id="nameLabel" layoutX="60.0" layoutY="89.0" text="Name">
-            <font>
-                <Font name="Segoe UI" size="20.0" />
-            </font>
-        </Label>
-        <Label fx:id="xLabel" layoutX="60.0" layoutY="132.0" text="X">
-            <font>
-                <Font name="Segoe UI" size="20.0" />
-            </font>
-        </Label>
-        <Label fx:id="yLabel" layoutX="224.0" layoutY="132.0" text="Y">
-            <font>
-                <Font name="Segoe UI" size="20.0" />
-            </font>
-        </Label>
-        <Label fx:id="priceLabel" layoutX="60.0" layoutY="175.0" text="Price">
-            <font>
-                <Font name="Segoe UI" size="20.0" />
-            </font>
-        </Label>
-        <Label fx:id="partNumberLabel" layoutX="60.0" layoutY="218.0" text="Part number">
-            <font>
-                <Font name="Segoe UI" size="20.0" />
-            </font>
-        </Label>
-        <Label fx:id="unitOfMeasureLabel" layoutX="60.0" layoutY="261.0" text="Unit of measure">
-            <font>
-                <Font name="Segoe UI" size="20.0" />
-            </font>
-        </Label>
-        <Label fx:id="hasManufacturer" layoutX="60.0" layoutY="304.0" text="Has manufacturer?">
-            <font>
-                <Font name="Segoe UI" size="20.0" />
-            </font>
-        </Label>
-        <Label fx:id="mNameLabel" layoutX="60.0" layoutY="347.0" text="Manufacturer name">
-            <font>
-                <Font name="Segoe UI" size="20.0" />
-            </font>
-        </Label>
-        <Label fx:id="mEmployeesCountLabel" layoutX="60.0" layoutY="390.0" text="Manufacturer employees count">
-            <font>
-                <Font name="Segoe UI" size="20.0" />
-            </font>
-        </Label>
-        <Label fx:id="mTypeLabel" layoutX="60.0" layoutY="433.0" text="Manufacturer type">
-            <font>
-                <Font name="Segoe UI" size="20.0" />
-            </font>
-        </Label>
-        <Label fx:id="mStreetLabel" layoutX="60.0" layoutY="476.0" text="Manufacturer street">
-            <font>
-                <Font name="Segoe UI" size="20.0" />
-            </font>
-        </Label>
-        <Label fx:id="mZipCodeLabel" layoutX="60.0" layoutY="519.0" text="Manufacturer zip code">
-            <font>
-                <Font name="Segoe UI" size="20.0" />
-            </font>
-        </Label>
+    <Label fx:id="nameLabel" layoutX="60.0" layoutY="89.0" text="Name">
+        <font>
+            <Font name="Segoe UI" size="20.0"/>
+        </font>
+    </Label>
+    <Label layoutX="60.0" layoutY="132.0" text="X">
+        <font>
+            <Font name="Segoe UI" size="20.0"/>
+        </font>
+    </Label>
+    <Label layoutX="224.0" layoutY="132.0" text="Y">
+        <font>
+            <Font name="Segoe UI" size="20.0"/>
+        </font>
+    </Label>
+    <Label fx:id="priceLabel" layoutX="60.0" layoutY="175.0" text="Price">
+        <font>
+            <Font name="Segoe UI" size="20.0"/>
+        </font>
+    </Label>
+    <Label fx:id="partNumberLabel" layoutX="60.0" layoutY="218.0" text="Part number">
+        <font>
+            <Font name="Segoe UI" size="20.0"/>
+        </font>
+    </Label>
+    <Label fx:id="manufactureCostLabel" layoutX="60.0" layoutY="261.0" text="Manufacture Cost">
+        <font>
+            <Font name="Segoe UI" size="20.0"/>
+        </font>
+    </Label>
+    <Label fx:id="unitOfMeasureLabel" layoutX="60.0" layoutY="304.0" text="Unit of measure">
+        <font>
+            <Font name="Segoe UI" size="20.0"/>
+        </font>
+    </Label>
+    <Label fx:id="hasManufacturer" layoutX="60.0" layoutY="347.0" text="Has manufacturer?">
+        <font>
+            <Font name="Segoe UI" size="20.0"/>
+        </font>
+    </Label>
+    <Label fx:id="mNameLabel" layoutX="60.0" layoutY="390.0" text="Manufacturer name">
+        <font>
+            <Font name="Segoe UI" size="20.0"/>
+        </font>
+    </Label>
+    <Label fx:id="mEmployeesCountLabel" layoutX="60.0" layoutY="433.0" text="Manufacturer employees count">
+        <font>
+            <Font name="Segoe UI" size="20.0"/>
+        </font>
+    </Label>
+    <Label fx:id="mTypeLabel" layoutX="60.0" layoutY="476.0" text="Manufacturer type">
+        <font>
+            <Font name="Segoe UI" size="20.0"/>
+        </font>
+    </Label>
+    <Label fx:id="mStreetLabel" layoutX="60.0" layoutY="519.0" text="Manufacturer street">
+        <font>
+            <Font name="Segoe UI" size="20.0"/>
+        </font>
+    </Label>
+    <Label fx:id="mHasLocation" layoutX="60.0" layoutY="562.0" text="Has location?">
+        <font>
+            <Font name="Segoe UI" size="20.0"/>
+        </font>
+    </Label>
+    <Label layoutX="60.0" layoutY="605.0" text="Location X">
+        <font>
+            <Font name="Segoe UI" size="20.0"/>
+        </font>
+    </Label>
+    <Label layoutX="224.0" layoutY="605.0" text="Location Y">
+        <font>
+            <Font name="Segoe UI" size="20.0"/>
+        </font>
+    </Label>
+    <Label layoutX="388.0" layoutY="605.0" text="Location Z">
+        <font>
+            <Font name="Segoe UI" size="20.0"/>
+        </font>
+    </Label>
 
-        <TextField fx:id="nameField" layoutX="162.0" layoutY="89.0" prefHeight="26.0" prefWidth="176.0">
-            <font>
-                <Font name="Segoe UI" size="12.0" />
-            </font>
-        </TextField>
-        <TextField fx:id="xField" layoutX="86.0" layoutY="132.0" prefHeight="26.0" prefWidth="90.0">
-            <font>
-                <Font name="Segoe UI" size="12.0" />
-            </font>
-        </TextField>
-        <TextField fx:id="yField" layoutX="248.0" layoutY="132.0" prefHeight="26.0" prefWidth="90.0">
-            <font>
-                <Font name="Segoe UI" size="12.0" />
-            </font>
-        </TextField>
-        <TextField fx:id="priceField" layoutX="162.0" layoutY="175.0" prefHeight="26.0" prefWidth="176.0">
-            <font>
-                <Font name="Segoe UI" size="12.0" />
-            </font>
-        </TextField>
-        <TextField fx:id="partNumberField" layoutX="248.0" layoutY="218.0" prefHeight="26.0" prefWidth="90.0">
-            <font>
-                <Font name="Segoe UI" size="12.0" />
-            </font>
-        </TextField>
-        <ChoiceBox fx:id="unitOfMeasureBox" layoutX="248.0" layoutY="261.0" prefHeight="26.0" prefWidth="90.0" />
+    <TextField fx:id="nameField" layoutX="162.0" layoutY="89.0" prefHeight="26.0" prefWidth="176.0"/>
+    <TextField fx:id="productXField" layoutX="86.0" layoutY="132.0" prefHeight="26.0" prefWidth="90.0"/>
+    <TextField fx:id="productYField" layoutX="248.0" layoutY="132.0" prefHeight="26.0" prefWidth="90.0"/>
+    <TextField fx:id="priceField" layoutX="162.0" layoutY="175.0" prefHeight="26.0" prefWidth="176.0"/>
+    <TextField fx:id="partNumberField" layoutX="162.0" layoutY="218.0" prefHeight="26.0" prefWidth="176.0"/>
+    <TextField fx:id="manufactureCostField" layoutX="162.0" layoutY="261.0" prefHeight="26.0" prefWidth="176.0"/>
+    <ChoiceBox fx:id="unitOfMeasureBox" layoutX="248.0" layoutY="304.0" prefHeight="26.0" prefWidth="90.0"/>
+    <ChoiceBox fx:id="hasManufacturerBox" layoutX="248.0" layoutY="347.0" prefHeight="26.0" prefWidth="90.0"/>
+    <TextField fx:id="mNameField" layoutX="248.0" layoutY="390.0" prefHeight="26.0" prefWidth="176.0"/>
+    <TextField fx:id="mEmployeesCountField" layoutX="248.0" layoutY="433.0" prefHeight="26.0" prefWidth="176.0"/>
+    <ChoiceBox fx:id="mTypeBox" layoutX="248.0" layoutY="476.0" prefHeight="26.0" prefWidth="176.0"/>
+    <TextField fx:id="mStreetField" layoutX="248.0" layoutY="519.0" prefHeight="26.0" prefWidth="176.0"/>
+    <ChoiceBox fx:id="hasLocationBox" layoutX="248.0" layoutY="562.0" prefHeight="26.0" prefWidth="90.0"/>
+    <TextField fx:id="locXField" layoutX="86.0" layoutY="605.0" prefHeight="26.0" prefWidth="90.0"/>
+    <TextField fx:id="locYField" layoutX="248.0" layoutY="605.0" prefHeight="26.0" prefWidth="90.0"/>
+    <TextField fx:id="locZField" layoutX="410.0" layoutY="605.0" prefHeight="26.0" prefWidth="90.0"/>
 
-        <ChoiceBox fx:id="hasManufacturerBox" layoutX="248.0" layoutY="304.0" prefHeight="26.0" prefWidth="90.0" />
-        <TextField fx:id="mNameField" layoutX="340.0" layoutY="347.0" prefHeight="26.0" prefWidth="116.0" />
-        <TextField fx:id="mEmployeesCountField" layoutX="340.0" layoutY="390.0" prefHeight="26.0" prefWidth="116.0" />
-        <ChoiceBox fx:id="mTypeBox" layoutX="340.0" layoutY="433.0" prefHeight="26.0" prefWidth="116.0" />
-        <TextField fx:id="mStreetField" layoutX="340.0" layoutY="476.0" prefHeight="26.0" prefWidth="116.0" />
-        <TextField fx:id="mZipCodeField" layoutX="340.0" layoutY="519.0" prefHeight="26.0" prefWidth="116.0" />
-
-        <Button fx:id="okButton" layoutX="60.0" layoutY="560.0" mnemonicParsing="false" onAction="#ok" prefHeight="38.0" prefWidth="116.0" style="-fx-background-radius: 10; -fx-border-radius: 10;" text="OK">
-            <font>
-                <Font name="Segoe UI" size="20.0" />
-            </font>
-        </Button>
-        <Button fx:id="cancelButton" layoutX="224.0" layoutY="560.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="116.0" style="-fx-background-radius: 10; -fx-border-radius: 10;" text="Cancel">
-            <font>
-                <Font name="Segoe UI" size="20.0" />
-            </font>
-        </Button>
-    </children>
+    <Button fx:id="okButton" layoutX="60.0" layoutY="650.0" mnemonicParsing="false" onAction="#ok" prefHeight="38.0"
+            prefWidth="116.0" style="-fx-background-radius: 10; -fx-border-radius: 10;" text="OK">
+        <font>
+            <Font name="Segoe UI" size="20.0"/>
+        </font>
+    </Button>
+    <Button fx:id="cancelButton" layoutX="224.0" layoutY="650.0" mnemonicParsing="false" prefHeight="38.0"
+            prefWidth="116.0" style="-fx-background-radius: 10; -fx-border-radius: 10;" text="Cancel">
+        <font>
+            <Font name="Segoe UI" size="20.0"/>
+        </font>
+    </Button>
 </AnchorPane>

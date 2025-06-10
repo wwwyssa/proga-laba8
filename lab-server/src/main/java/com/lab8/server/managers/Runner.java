@@ -50,7 +50,7 @@ public class Runner {
      * @param userCommand команда для запуска
      * @return код завершения
      */
-    public ExecutionResponse launchCommand(String[] userCommand, Product product, User user) {
+    public ExecutionResponse<?> launchCommand(String[] userCommand, Product product, User user) {
         ExecutionResponse<?> validateStatus = validateCommand(userCommand);
         if (validateStatus.getExitCode()) {
             var command = commandManager.getCommands().get(userCommand[0]);
@@ -61,7 +61,7 @@ public class Runner {
                 return command.execute(userCommand[1], user);
             }
         }else {
-            return new ExecutionResponse(false, validateStatus.getAnswer());
+            return new ExecutionResponse<>(false, validateStatus.getAnswer());
         }
     }
 }

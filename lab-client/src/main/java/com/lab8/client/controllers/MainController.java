@@ -3,17 +3,25 @@ package com.lab8.client.controllers;
 import com.lab8.client.Auth.SessionHandler;
 import com.lab8.client.managers.ConnectionManager;
 import com.lab8.client.managers.DialogManager;
+import com.lab8.client.util.Console;
 import com.lab8.client.util.Localizator;
 import com.lab8.common.models.Product;
 import com.lab8.common.util.Request;
 import com.lab8.common.util.Response;
 
+import com.lab8.common.util.ValidAnswer;
+import com.lab8.common.util.executions.ExecutionResponse;
+import com.lab8.common.util.executions.ListAnswer;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -32,12 +40,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainController {
     private Localizator localizator;
 
     private Runnable authCallback;
-    private volatile boolean isRefreshing = false;
+    private volatile boolean isRefreshing = true;
 
     private List<Product> collection;
 
@@ -61,8 +71,6 @@ public class MainController {
     private Label userLabel;
     @FXML
     private Button helpButton;
-    @FXML
-    private Button showButton;
     @FXML
     private Button infoButton;
     @FXML
@@ -95,7 +103,7 @@ public class MainController {
     @FXML
     private TableColumn<Product, Long> idColumn;
     @FXML
-    private TableColumn<Product, Integer> ownerColumn;
+    private TableColumn<Product, String> ownerColumn;
     @FXML
     private TableColumn<Product, String> nameColumn;
     @FXML
@@ -148,7 +156,7 @@ public class MainController {
         });
 
         idColumn.setCellValueFactory(product -> new SimpleLongProperty(product.getValue().getId()).asObject());
-        ownerColumn.setCellValueFactory(product -> new SimpleIntegerProperty(product.getValue().getCreator()).asObject());
+        ownerColumn.setCellValueFactory(product -> new SimpleStringProperty(product.getValue().getCreator()));
         nameColumn.setCellValueFactory(product -> new SimpleStringProperty(product.getValue().getName()));
         coordinatesXColumn.setCellValueFactory(product -> new SimpleIntegerProperty(product.getValue().getCoordinates().getX()).asObject());
         coordinatesYColumn.setCellValueFactory(product -> new SimpleIntegerProperty(product.getValue().getCoordinates().getY()).asObject());
@@ -215,7 +223,7 @@ public class MainController {
             });
             return row;
         });
-
+        refresh();
         //visualTab.setOnSelectionChanged(event -> visualise(false)); //todo тут должна быть визуализация коллекции
     }
 
@@ -225,7 +233,7 @@ public class MainController {
     }
 
     @FXML
-    public void logout() {
+    public void logout() { //TODO нарисовать кнопочку
         SessionHandler.setCurrentUser(null);
         SessionHandler.setCurrentLanguage("Русский");
         setRefreshing(false);
@@ -237,15 +245,11 @@ public class MainController {
         try {
             ConnectionManager.getInstance().send(new Request("Help", SessionHandler.getCurrentUser()));
             Response response = ConnectionManager.getInstance().receive();
+            String help = (String) response.getExecutionStatus().getAnswer().getAnswer(); //todo дай бог оно возвращает строку
             DialogManager.createAlert(localizator.getKeyString("Help"), localizator.getKeyString("HelpResult"), Alert.AlertType.INFORMATION, true);
         } catch (ClassNotFoundException | IOException e) {
             DialogManager.alert("UnavailableError", localizator);
         }
-    }
-
-    @FXML
-    private void show() {
-        // TODO: Реализовать обработку кнопки "Show"
     }
 
     @FXML
@@ -280,7 +284,19 @@ public class MainController {
 
     @FXML
     private void add() {
-        // TODO: Реализовать обработку кнопки "Add"
+        editController.clear();
+        editController.show();
+        Product product = editController.getProduct();
+        if (product != null) {
+            try {
+                ConnectionManager.getInstance().send(new Request("add", product, SessionHandler.getCurrentUser()));
+                Response response = ConnectionManager.getInstance().receive();
+                DialogManager.createAlert(localizator.getKeyString("Add"), localizator.getKeyString("AddResult"), Alert.AlertType.INFORMATION, false);
+            } catch (ClassNotFoundException | IOException e) {
+                DialogManager.alert("UnavailableError", localizator);
+            }
+        }
+        loadCollection();
     }
 
     @FXML
@@ -359,6 +375,19 @@ public class MainController {
         this.authCallback = authCallback;
     }
 
+    public void refresh() {
+        ExecutorService refresher = Executors.newSingleThreadExecutor();
+        refresher.submit(() -> {
+            while (isRefreshing()) {
+                Platform.runLater(this::loadCollection);
+                try {
+                    Thread.sleep(10_000);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        });
+    }
+
     public boolean isRefreshing() {
         return isRefreshing;
     }
@@ -367,8 +396,24 @@ public class MainController {
         isRefreshing = refreshing;
     }
 
+    private void loadCollection() {
+        try {
+            System.out.println("Refreshing collection...");
+            ConnectionManager.getInstance().send(new Request("show", SessionHandler.getCurrentUser()));
+            Response response = ConnectionManager.getInstance().receive();
+            setCollection((List<Product>) response.getExecutionStatus().getAnswer().getAnswer()); //todo pizdec
+            //visualise(true);
+        } catch (ClassNotFoundException | IOException e) {
+            DialogManager.alert("UnavailableError", localizator);
+        }
+    }
+
     public void setEditController(EditController editController) {
         this.editController = editController;
         editController.changeLanguage();
+    }
+
+    public void setLocalizator(Localizator localizator) {
+        this.localizator = localizator;
     }
 }

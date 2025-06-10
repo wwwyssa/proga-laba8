@@ -7,12 +7,10 @@ import com.lab8.common.util.executions.ExecutionResponse;
 import com.lab8.server.Server;
 import com.lab8.server.dao.ProductDAO;
 
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
@@ -44,8 +42,6 @@ public class CollectionManager {
         }
     }
 
-
-
     private void load() {
         Server.logger.info("Загрузка начата...");
         lock.readLock().lock();
@@ -76,7 +72,7 @@ public class CollectionManager {
                     dao.getManufactureCost(),
                     dao.getUnitOfMeasure(),
                     manufacturer,
-                    dao.getCreator().getId()
+                    dao.getCreator().getName()
             );
         }).collect(Collectors.toMap(Product::getId, product -> product));
 
@@ -184,7 +180,7 @@ public class CollectionManager {
             return new ExecutionResponse(false, new AnswerString("Product with the given ID does not exist"));
         }
 
-        if (getById(id).getCreator() != user.getId()) {
+        if (!getById(id).getCreator().equals(user.getName())) {
             Server.logger.info("Другой владелец.");
             return new ExecutionResponse(false, new AnswerString("Вы не можете удалить продукт, который не принадлежит вам!"));
         }
@@ -203,9 +199,6 @@ public class CollectionManager {
 
 
     }
-
-
-
 
     /**
      * Returns the time of the last initialization.

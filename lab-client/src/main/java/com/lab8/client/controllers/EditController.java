@@ -10,8 +10,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
+import java.lang.management.ManagementFactory;
 import java.math.BigInteger;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,6 +59,8 @@ public class EditController {
     @FXML
     private TextField partNumberField;
     @FXML
+    private TextField manufactureCostField;
+    @FXML
     private TextField mNameField;
     @FXML
     private TextField mEmployeesCountField;
@@ -70,7 +72,6 @@ public class EditController {
     private TextField locYField;
     @FXML
     private TextField locZField;
-
     @FXML
     private ChoiceBox<String> unitOfMeasureBox;
     @FXML
@@ -103,6 +104,16 @@ public class EditController {
         hasManufacturerBox.setValue("FALSE");
         hasManufacturerBox.setStyle("-fx-font: 12px \"Sergoe UI\";");
 
+        var hasLocation = FXCollections.observableArrayList("TRUE", "FALSE");
+        hasLocationBox.setItems(hasLocation);
+        hasLocationBox.setValue("FALSE");
+        hasLocationBox.setStyle("-fx-font: 12px \"Sergoe UI\";");
+
+        Arrays.asList(mNameField, mEmployeesCountField, mStreetField, mHasLocation, mTypeBox).forEach(field -> {
+            field.disableProperty().bind(
+                    hasLocationBox.getSelectionModel().selectedItemProperty().isEqualTo("FALSE")
+            );
+        });
 
         Arrays.asList(mNameField, mEmployeesCountField, mStreetField, mHasLocation, mTypeBox).forEach(field -> {
             field.disableProperty().bind(
@@ -159,91 +170,85 @@ public class EditController {
         });
     }
 
-    @FXML
-    public void ok() {
-        nameField.setText(nameField.getText().trim());
-        partNumberField.setText(partNumberField.getText().trim());
-        mNameField.setText(mNameField.getText().trim());
-        mStreetField.setText(mStreetField.getText().trim());
-        mHasLocation.setText(mHasLocation.getText().trim());
+@FXML
+public void ok() { // todo ок
+    nameField.setText(nameField.getText().trim()); // ok
+    partNumberField.setText(partNumberField.getText().trim());
+    manufactureCostField.setText(manufactureCostField.getText().trim());
+    mNameField.setText(mNameField.getText().trim());
+    mStreetField.setText(mStreetField.getText().trim());
 
-        var errors = new ArrayList<String>();
+    var errors = new ArrayList<String>();
 
-        Organization organization = null;
-        if (hasManufacturerBox.getValue().equals("TRUE")) {
-            if (mNameField.getText().isEmpty()) errors.add(
-                    "- " + localizator.getKeyString("ManufacturerName") + " " + localizator.getKeyString("CannotBeEmpty")
-            );
-            if (mStreetField.getText().isEmpty()) errors.add(
-                    "- " + localizator.getKeyString("ManufacturerStreet") + " " + localizator.getKeyString("CannotBeEmpty")
-            );
-
-            String zipCode = mHasLocation.getText();
-            if (mHasLocation.getText().isEmpty()) {
-                zipCode = null;
-            } else if (zipCode.length() < 6) {
-                errors.add("- " + localizator.getKeyString("ZipCodeLength"));
-            }
-
-            OrganizationType organizationType = null;
-            if (mTypeBox.getValue() != null) {
-                organizationType = OrganizationType.valueOf(mTypeBox.getValue());
-            } else {
-                errors.add("- " + localizator.getKeyString("ManufacturerType") + " " + localizator.getKeyString("CannotBeEmpty"));
-            }
-
-            organization = new Organization(
-                    -1,
-                    mNameField.getText(),
-                    Integer.parseInt(mEmployeesCountField.getText()),
-                    organizationType,
-                    new Address(
-                            mStreetField.getText(),
-                            new Location(
-                                    Float.parseFloat(locXField.getText()),
-                                    Integer.parseInt(locYField.getText()),
-                                    locZField.getText().isEmpty() ? null : Integer.parseInt(locZField.getText())
-                            )
-                    )
-            );
+    Organization organization = null;
+    if ("TRUE".equals(hasManufacturerBox.getValue())) {
+        if (mNameField.getText().isEmpty()) {
+            errors.add("- " + localizator.getKeyString("ManufacturerName") + " " + localizator.getKeyString("CannotBeEmpty"));
+        }
+        if (mStreetField.getText().isEmpty()) {
+            errors.add("- " + localizator.getKeyString("ManufacturerStreet") + " " + localizator.getKeyString("CannotBeEmpty"));
         }
 
-        if (nameField.getText().isEmpty()) errors.add(
-                "- " + localizator.getKeyString("Name") + " " + localizator.getKeyString("CannotBeEmpty")
+        OrganizationType organizationType = null;
+        if (mTypeBox.getValue() != null) {
+            organizationType = OrganizationType.valueOf(mTypeBox.getValue());
+        } else {
+            errors.add("- " + localizator.getKeyString("ManufacturerType") + " " + localizator.getKeyString("CannotBeEmpty"));
+        }
+
+        organization = new Organization(
+                1,
+                mNameField.getText(),
+                Integer.parseInt(mEmployeesCountField.getText()),
+                organizationType,
+                new Address(
+                        mStreetField.getText(),
+                        new Location(
+                                Float.parseFloat(locXField.getText()),
+                                Integer.parseInt(locYField.getText()),
+                                locZField.getText().isEmpty() ? null : Integer.parseInt(locZField.getText())
+                        )
+                )
+        );
+    }
+
+    if (nameField.getText().isEmpty()) {
+        errors.add("- " + localizator.getKeyString("Name") + " " + localizator.getKeyString("CannotBeEmpty"));
+    }
+
+    String partNumber = partNumberField.getText().isEmpty() ? null : partNumberField.getText();
+
+    UnitOfMeasure unitOfMeasure = null;
+    if (unitOfMeasureBox.getValue() != null) {
+        unitOfMeasure = UnitOfMeasure.valueOf(unitOfMeasureBox.getValue());
+    }
+
+    int manufactureCost = manufactureCostField.getText().isEmpty() ? 0 : Integer.parseInt(manufactureCostField.getText());
+
+    if (!errors.isEmpty()) {
+        DialogManager.createAlert(localizator.getKeyString("Error"), String.join("\n", errors), Alert.AlertType.ERROR, false);
+    } else { // fixme обработку ошибок перелопатить по-нормальному
+        Product newProduct = new Product(
+                1,
+                nameField.getText(),
+                new Coordinates(Integer.parseInt(productXField.getText()), (int) Long.parseLong(productYField.getText())),
+                LocalDateTime.now(),
+                Integer.parseInt(priceField.getText()),
+                partNumber,
+                manufactureCost,
+                unitOfMeasure,
+                organization,
+                SessionHandler.getCurrentUser().getName()
         );
 
-        String partNumber = partNumberField.getText();
-        if (partNumberField.getText().isEmpty()) partNumber = null;
-
-        UnitOfMeasure unitOfMeasure = null;
-        if (unitOfMeasureBox.getValue() != null) unitOfMeasure = UnitOfMeasure.valueOf(unitOfMeasureBox.getValue());
-
-        int manufactureCost = 0;
-        manufactureCost = Integer.parseInt(manufactureCostLabel.getText().trim());
-
-        if (!errors.isEmpty()) {
-            DialogManager.createAlert(localizator.getKeyString("Error"), String.join("\n", errors), Alert.AlertType.ERROR, false);
+        if (!newProduct.isValid()) {
+            DialogManager.alert("InvalidProduct", localizator);
         } else {
-            var newProduct = new Product(
-                    -1,
-                    nameField.getText(),
-                    new Coordinates(Integer.parseInt(productXField.getText()), (int) Long.parseLong(productYField.getText())),
-                    LocalDateTime.now(),
-                    Integer.parseInt(priceField.getText()),
-                    partNumber,
-                    manufactureCost,
-                    unitOfMeasure,
-                    organization,
-                    SessionHandler.getCurrentUser().getId()
-            );
-            if (!newProduct.isValid()) {
-                DialogManager.alert("InvalidProduct", localizator);
-            } else {
-                product = newProduct;
-                stage.close();
-            }
+            product = newProduct;
+            stage.close();
         }
     }
+}
 
     public Product getProduct() {
         var tmpProduct = product;
@@ -257,6 +262,7 @@ public class EditController {
         productYField.clear();
         priceField.clear();
         partNumberField.clear();
+        manufactureCostField.clear();
         unitOfMeasureBox.valueProperty().setValue(null);
         hasManufacturerBox.valueProperty().setValue("FALSE");
 
@@ -272,6 +278,7 @@ public class EditController {
         productYField.setText(Long.toString(product.getCoordinates().getY()));
         priceField.setText(Long.toString(product.getPrice()));
         partNumberField.setText(product.getPartNumber());
+        manufactureCostField.setText(Integer.toString(product.getManufactureCost()));
         unitOfMeasureBox.setValue(product.getUnitOfMeasure() == null ? null : product.getUnitOfMeasure().toString());
         hasManufacturerBox.setValue(product.getManufacturer() == null ? "FALSE" : "TRUE");
 

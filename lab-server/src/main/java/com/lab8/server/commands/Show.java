@@ -1,10 +1,14 @@
 package com.lab8.server.commands;
 
+import com.lab8.common.models.Product;
 import com.lab8.common.util.User;
 import com.lab8.common.util.executions.AnswerString;
 import com.lab8.common.util.executions.ExecutionResponse;
+import com.lab8.common.util.executions.ListAnswer;
 import com.lab8.common.validators.NoArgumentsValidator;
 import com.lab8.server.managers.CollectionManager;
+
+import java.util.List;
 
 import static java.lang.Thread.sleep;
 
@@ -25,8 +29,7 @@ public class Show extends Command<NoArgumentsValidator> {
      * @return Успешность выполнения команды.
      */
     @Override
-    public ExecutionResponse innerExecute(String arguments, User user) {
-
-        return new ExecutionResponse(new AnswerString(collectionManager.toString()));
+    public ExecutionResponse<ListAnswer> innerExecute(String arguments, User user) {
+        return new ExecutionResponse<>(new ListAnswer(collectionManager.getCollection().values().stream().toList()));
     }
 }
