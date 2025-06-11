@@ -151,6 +151,7 @@ public class MainController {
         VisualisationManager visualisationManager = new VisualisationManager(visualPane);
         languageComboBox.setItems(FXCollections.observableArrayList(localeMap.keySet()));
         languageComboBox.setStyle("-fx-font: 13px \"Sergoe UI\";");
+        languageComboBox.setValue(SessionHandler.getCurrentLanguage());
         languageComboBox.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             localizator.setBundle(ResourceBundle.getBundle("locales/gui", localeMap.get(newValue)));
             changeLanguage();

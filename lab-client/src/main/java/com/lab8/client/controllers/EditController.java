@@ -39,8 +39,6 @@ public class EditController {
     @FXML
     private Label unitOfMeasureLabel;
     @FXML
-    private Label hasManufacturer;
-    @FXML
     private Label mNameLabel;
     @FXML
     private Label mEmployeesCountLabel;
@@ -48,8 +46,6 @@ public class EditController {
     private Label mTypeLabel;
     @FXML
     private Label mStreetLabel;
-    @FXML
-    private Label mHasLocation;
 
     @FXML
     private TextField nameField;
@@ -78,11 +74,7 @@ public class EditController {
     @FXML
     private ChoiceBox<String> unitOfMeasureBox;
     @FXML
-    private ChoiceBox<String> hasManufacturerBox;
-    @FXML
     private ChoiceBox<String> mTypeBox;
-    @FXML
-    private ChoiceBox<String> hasLocationBox;
 
     @FXML
     private Button cancelButton;
@@ -101,28 +93,6 @@ public class EditController {
         );
         unitOfMeasureBox.setItems(unitOfMeasures);
         unitOfMeasureBox.setStyle("-fx-font: 12px \"Sergoe UI\";");
-
-        var hasManufacturer = FXCollections.observableArrayList("TRUE", "FALSE");
-        hasManufacturerBox.setItems(hasManufacturer);
-        hasManufacturerBox.setValue("FALSE");
-        hasManufacturerBox.setStyle("-fx-font: 12px \"Sergoe UI\";");
-
-        var hasLocation = FXCollections.observableArrayList("TRUE", "FALSE");
-        hasLocationBox.setItems(hasLocation);
-        hasLocationBox.setValue("FALSE");
-        hasLocationBox.setStyle("-fx-font: 12px \"Sergoe UI\";");
-
-        Arrays.asList(mNameField, mEmployeesCountField, mStreetField, mHasLocation, mTypeBox).forEach(field -> {
-            field.disableProperty().bind(
-                    hasLocationBox.getSelectionModel().selectedItemProperty().isEqualTo("FALSE")
-            );
-        });
-
-        Arrays.asList(mNameField, mEmployeesCountField, mStreetField, mHasLocation, mTypeBox).forEach(field -> {
-            field.disableProperty().bind(
-                    hasManufacturerBox.getSelectionModel().selectedItemProperty().isEqualTo("FALSE")
-            );
-        });
 
         productXField.textProperty().addListener((observableValue, oldValue, newValue) -> {
             if (!newValue.matches("[-\\d]{0,11}")) {
@@ -183,37 +153,34 @@ public class EditController {
 
         var errors = new ArrayList<String>();
 
-        Organization organization = null;
-        if ("TRUE".equals(hasManufacturerBox.getValue())) {
-            if (mNameField.getText().isEmpty()) {
-                errors.add("- " + localizator.getKeyString("ManufacturerName") + " " + localizator.getKeyString("CannotBeEmpty"));
-            }
-            if (mStreetField.getText().isEmpty()) {
-                errors.add("- " + localizator.getKeyString("ManufacturerStreet") + " " + localizator.getKeyString("CannotBeEmpty"));
-            }
-
-            OrganizationType organizationType = null;
-            if (mTypeBox.getValue() != null) {
-                organizationType = OrganizationType.valueOf(mTypeBox.getValue());
-            } else {
-                errors.add("- " + localizator.getKeyString("ManufacturerType") + " " + localizator.getKeyString("CannotBeEmpty"));
-            }
-
-            organization = new Organization(
-                    1,
-                    mNameField.getText(),
-                    Integer.parseInt(mEmployeesCountField.getText()),
-                    organizationType,
-                    new Address(
-                            mStreetField.getText(),
-                            new Location(
-                                    Float.parseFloat(locXField.getText()),
-                                    Integer.parseInt(locYField.getText()),
-                                    locZField.getText().isEmpty() ? null : Integer.parseInt(locZField.getText())
-                            )
-                    )
-            );
+        if (mNameField.getText().isEmpty()) {
+            errors.add("- " + localizator.getKeyString("ManufacturerName") + " " + localizator.getKeyString("CannotBeEmpty"));
         }
+        if (mStreetField.getText().isEmpty()) {
+            errors.add("- " + localizator.getKeyString("ManufacturerStreet") + " " + localizator.getKeyString("CannotBeEmpty"));
+        }
+
+        OrganizationType organizationType = null;
+        if (mTypeBox.getValue() != null) {
+            organizationType = OrganizationType.valueOf(mTypeBox.getValue());
+        } else {
+            errors.add("- " + localizator.getKeyString("ManufacturerType") + " " + localizator.getKeyString("CannotBeEmpty"));
+        }
+
+        Organization organization = new Organization(
+                1,
+                mNameField.getText(),
+                Integer.parseInt(mEmployeesCountField.getText()),
+                organizationType,
+                new Address(
+                        mStreetField.getText(),
+                        new Location(
+                                Float.parseFloat(locXField.getText()),
+                                Integer.parseInt(locYField.getText()),
+                                locZField.getText().isEmpty() ? null : Integer.parseInt(locZField.getText())
+                        )
+                )
+        );
 
         if (nameField.getText().isEmpty()) {
             errors.add("- " + localizator.getKeyString("Name") + " " + localizator.getKeyString("CannotBeEmpty"));
@@ -267,7 +234,6 @@ public class EditController {
         partNumberField.clear();
         manufactureCostField.clear();
         unitOfMeasureBox.valueProperty().setValue(null);
-        hasManufacturerBox.valueProperty().setValue("FALSE");
 
         mNameField.clear();
         mEmployeesCountField.clear();
@@ -283,8 +249,6 @@ public class EditController {
         partNumberField.setText(product.getPartNumber());
         manufactureCostField.setText(Integer.toString(product.getManufactureCost()));
         unitOfMeasureBox.setValue(product.getUnitOfMeasure() == null ? null : product.getUnitOfMeasure().toString());
-        hasManufacturerBox.setValue(product.getManufacturer() == null ? "FALSE" : "TRUE");
-
         if (product.getManufacturer() != null) {
             var manufacturer = product.getManufacturer();
             mNameField.setText(manufacturer.getName());
@@ -310,7 +274,6 @@ public class EditController {
         priceLabel.setText(localizator.getKeyString("Price"));
         partNumberLabel.setText(localizator.getKeyString("PartNumber"));
         unitOfMeasureLabel.setText(localizator.getKeyString("UnitOfMeasure"));
-        hasManufacturer.setText(localizator.getKeyString("HasManufacturer"));
         mNameLabel.setText(localizator.getKeyString("ManufacturerName"));
         mEmployeesCountLabel.setText(localizator.getKeyString("ManufacturerEmployeesCount"));
         mTypeLabel.setText(localizator.getKeyString("ManufacturerType"));

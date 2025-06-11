@@ -4,7 +4,6 @@ import com.lab8.client.util.Console;
 import com.lab8.common.util.Request;
 import com.lab8.common.util.Response;
 import com.lab8.common.util.User;
-import com.lab8.common.util.executions.AnswerString;
 import com.lab8.common.util.executions.ExecutionResponse;
 
 import java.io.IOException;
@@ -75,8 +74,7 @@ public class AuthenticationManager {
         return authResponse.getExecutionStatus();
     }
 
-    public static ExecutionResponse<?> authenticateUser(String name, String pass, String inputCommand) throws IOException, ClassNotFoundException {
-        String username = name;
+    public static ExecutionResponse<?> authenticateUser(String username, String pass, String inputCommand) throws IOException, ClassNotFoundException {
         String password = getHash(pass);
         return sendAuthenticationRequest(new User(username, password), inputCommand);
     }

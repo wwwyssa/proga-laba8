@@ -69,7 +69,7 @@ public class AuthManager {
                 if (transaction != null) {
                     transaction.rollback();
                 }
-                return new ExecutionResponse<>(false, new AnswerString("UserAlreadyExists")); // todo проверить оно ли
+                return new ExecutionResponse<>(false, new AnswerString("UserAlreadyExists"));
             }
         }
     }

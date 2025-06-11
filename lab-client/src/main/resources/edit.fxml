@@ -52,11 +52,6 @@
             <Font name="Segoe UI" size="20.0"/>
         </font>
     </Label>
-    <Label fx:id="hasManufacturer" layoutX="60.0" layoutY="347.0" text="Has manufacturer?">
-        <font>
-            <Font name="Segoe UI" size="20.0"/>
-        </font>
-    </Label>
     <Label fx:id="mNameLabel" layoutX="60.0" layoutY="390.0" text="Manufacturer name">
         <font>
             <Font name="Segoe UI" size="20.0"/>
@@ -73,11 +68,6 @@
         </font>
     </Label>
     <Label fx:id="mStreetLabel" layoutX="60.0" layoutY="519.0" text="Manufacturer street">
-        <font>
-            <Font name="Segoe UI" size="20.0"/>
-        </font>
-    </Label>
-    <Label fx:id="mHasLocation" layoutX="60.0" layoutY="562.0" text="Has location?">
         <font>
             <Font name="Segoe UI" size="20.0"/>
         </font>
@@ -105,12 +95,10 @@
     <TextField fx:id="partNumberField" layoutX="162.0" layoutY="218.0" prefHeight="26.0" prefWidth="176.0"/>
     <TextField fx:id="manufactureCostField" layoutX="162.0" layoutY="261.0" prefHeight="26.0" prefWidth="176.0"/>
     <ChoiceBox fx:id="unitOfMeasureBox" layoutX="248.0" layoutY="304.0" prefHeight="26.0" prefWidth="90.0"/>
-    <ChoiceBox fx:id="hasManufacturerBox" layoutX="248.0" layoutY="347.0" prefHeight="26.0" prefWidth="90.0"/>
     <TextField fx:id="mNameField" layoutX="248.0" layoutY="390.0" prefHeight="26.0" prefWidth="176.0"/>
     <TextField fx:id="mEmployeesCountField" layoutX="248.0" layoutY="433.0" prefHeight="26.0" prefWidth="176.0"/>
     <ChoiceBox fx:id="mTypeBox" layoutX="248.0" layoutY="476.0" prefHeight="26.0" prefWidth="176.0"/>
     <TextField fx:id="mStreetField" layoutX="248.0" layoutY="519.0" prefHeight="26.0" prefWidth="176.0"/>
-    <ChoiceBox fx:id="hasLocationBox" layoutX="248.0" layoutY="562.0" prefHeight="26.0" prefWidth="90.0"/>
     <TextField fx:id="locXField" layoutX="86.0" layoutY="605.0" prefHeight="26.0" prefWidth="90.0"/>
     <TextField fx:id="locYField" layoutX="248.0" layoutY="605.0" prefHeight="26.0" prefWidth="90.0"/>
     <TextField fx:id="locZField" layoutX="410.0" layoutY="605.0" prefHeight="26.0" prefWidth="90.0"/>

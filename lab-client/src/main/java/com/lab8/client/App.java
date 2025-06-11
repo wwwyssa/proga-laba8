@@ -8,8 +8,6 @@ import com.lab8.client.managers.ConnectionManager;
 import com.lab8.client.util.Console;
 import com.lab8.client.util.DefaultConsole;
 import com.lab8.client.util.Localizator;
-import com.lab8.common.util.Pair;
-import com.lab8.common.validators.ArgumentValidator;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -17,7 +15,6 @@ import javafx.scene.Parent;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 import java.io.IOException;
-import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Locale;
 
@@ -65,9 +62,9 @@ public class App extends Application {
         editStage.setResizable(false);
         editStage.setTitle("Lab 8 Client");
         EditController editController = editLoader.getController();
-
         editController.setStage(editStage);
         editController.setLocalizator(localizator);
+        editController.changeLanguage();
         return editController;
     }
 
@@ -78,6 +75,8 @@ public class App extends Application {
         mainController.setLocalizator(localizator);
         mainController.setEditController(createEditController());
         mainController.setAuthCallback(this::authStage);
+
+        mainController.changeLanguage();
 
         mainStage.setScene(new Scene(mainRoot));
         mainStage.setTitle("Lab 8 Client");
@@ -90,6 +89,8 @@ public class App extends Application {
         AuthController authController = authLoader.getController();
         authController.setCallback(this::startMain);
         authController.setLocalizator(localizator);
+
+        authController.changeLanguage();
 
         mainStage.setScene(new Scene(authRoot));
         mainStage.setTitle("Lab 8 Client");

@@ -73,13 +73,13 @@ public class AuthController {
             ExecutionResponse<AnswerString> authenticateStatus = (ExecutionResponse<AnswerString>) AuthenticationManager.authenticateUser(loginField.getText(), passwordField.getText(), Command);
             if (authenticateStatus == null) {
                 DialogManager.alert("ServerError", localizator);
-                return;
             } else if (!authenticateStatus.getExitCode()) {
                 DialogManager.alert(authenticateStatus.getAnswer().getAnswer(), localizator);
-                return;
             }
             else {
                 User user = new User(loginField.getText(), passwordField.getText());
+                String id = authenticateStatus.getAnswer().getAnswer().split("id#")[1];
+                user.setId(Integer.parseInt(id));
                 SessionHandler.setCurrentUser(user);
                 SessionHandler.setCurrentLanguage(languageComboBox.getValue());
                 DialogManager.info(isRegistration ? "RegisterSuccess" : "LoginSuccess", localizator);
