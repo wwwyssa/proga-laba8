@@ -226,6 +226,7 @@ public class MainController {
             });
             return row;
         });
+        tableTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         updatingManager.refresh();
         visualTab.setOnSelectionChanged(event -> visualisationManager.drawCollection(tableTable.getItems()));
     }
@@ -236,7 +237,7 @@ public class MainController {
     }
 
     @FXML
-    public void logout() { //TODO нарисовать кнопочку
+    public void logout() {
         SessionHandler.setCurrentUser(null);
         SessionHandler.setCurrentLanguage("Русский");
         updatingManager.stopRefreshing();
