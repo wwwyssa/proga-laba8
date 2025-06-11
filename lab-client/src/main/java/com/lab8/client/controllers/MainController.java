@@ -388,13 +388,17 @@ public class MainController {
                     Response response = ConnectionManager.getInstance().receive();
                     if (response.getExecutionStatus().getExitCode()) {
                         DialogManager.createAlert(localizator.getKeyString("update"), localizator.getKeyString("update"), Alert.AlertType.INFORMATION, false);
+                        // Обновление коллекции в TableView
+                        int index = tableTable.getItems().indexOf(product);
+                        if (index != -1) {
+                            tableTable.getItems().set(index, updatedProduct);
+                        }
                     } else {
                         DialogManager.createAlert(localizator.getKeyString("Error"), response.getExecutionStatus().getAnswer().toString(), Alert.AlertType.ERROR, false);
                     }
                 } catch (ClassNotFoundException | IOException e) {
                     DialogManager.alert("UnavailableError", localizator);
                 }
-                updatingManager.loadCollection();
             }
         } else {
             DialogManager.createAlert(localizator.getKeyString("Error"), localizator.getKeyString("NotYourProduct"), Alert.AlertType.ERROR, false);
