@@ -30,7 +30,10 @@ public class Runner {
 
     private ExecutionResponse validateCommand(String[] userCommand) {
         try {
-            System.out.println(userCommand[0]);
+
+            for(String s: userCommand){
+                System.out.print(s + " ");
+            }
             Executable command = commandManager.getCommands().get(userCommand[0]);
             if (command == null) {
                 return new ExecutionResponse(false, new AnswerString("Команда '" + userCommand[0] + "' не найдена! Для показа списка команд введите 'help'."));

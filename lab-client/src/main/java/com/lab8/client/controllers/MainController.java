@@ -5,6 +5,7 @@ import com.lab8.client.managers.ConnectionManager;
 import com.lab8.client.managers.DialogManager;
 import com.lab8.client.util.Console;
 import com.lab8.client.util.Localizator;
+import com.lab8.common.models.Organization;
 import com.lab8.common.models.Product;
 import com.lab8.common.util.Request;
 import com.lab8.common.util.Response;
@@ -372,6 +373,32 @@ public class MainController {
 
     private void doubleClickUpdate(Product product, boolean ignoreAnotherUser) {
         //todo по двойному клику нам надо изменять отдельные поля объекта
+        System.out.print("Double click on row: " + product);
+        if (product.getCreator().equals(SessionHandler.getCurrentUser().getName()) || !ignoreAnotherUser) {
+            editController.fill(product);
+            editController.show();
+            Product updatedProduct = editController.getProduct();
+            if (updatedProduct != null) {
+                try {
+                    updatedProduct.setId(product.getId());
+                    Organization manufacturer = updatedProduct.getManufacturer();
+                    manufacturer.setId(product.getManufacturer().getId());
+                    updatedProduct.setManufacturer(manufacturer);
+                    ConnectionManager.getInstance().send(new Request("update", updatedProduct, SessionHandler.getCurrentUser()));
+                    Response response = ConnectionManager.getInstance().receive();
+                    if (response.getExecutionStatus().getExitCode()) {
+                        DialogManager.createAlert(localizator.getKeyString("update"), localizator.getKeyString("update"), Alert.AlertType.INFORMATION, false);
+                    } else {
+                        DialogManager.createAlert(localizator.getKeyString("Error"), response.getExecutionStatus().getAnswer().toString(), Alert.AlertType.ERROR, false);
+                    }
+                } catch (ClassNotFoundException | IOException e) {
+                    DialogManager.alert("UnavailableError", localizator);
+                }
+                updatingManager.loadCollection();
+            }
+        } else {
+            DialogManager.createAlert(localizator.getKeyString("Error"), localizator.getKeyString("NotYourProduct"), Alert.AlertType.ERROR, false);
+        }
     }
 
     //todo по-хорошему абстрактный контроллер

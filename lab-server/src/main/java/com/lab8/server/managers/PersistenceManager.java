@@ -63,10 +63,11 @@ public class PersistenceManager {
         session.persist(orgDAO);
         session.getTransaction().commit();
 
+        session.close();
         return orgDAO;
     }
 
-    public void update(User user, Product product) {
+    public ExecutionResponse update(User user, Product product) {
         Server.logger.info("Обновление продукта id#" + product.getId());
         var session = sessionFactory.getCurrentSession();
 
@@ -77,27 +78,34 @@ public class PersistenceManager {
             updateOrganization(user, product.getManufacturer());
         }
         productDAO.update(product);
-        session.update(productDAO);
 
+        session.update(productDAO);
         session.getTransaction().commit();
         session.close();
-        Server.logger.info("Обновление продукта выполнено!");
+        Server.logger.info("Обновление продукта выполнено!" + productDAO.getId());
+        return new ExecutionResponse(true, new AnswerString(String.valueOf(product.getId())));
+
+
     }
 
-    public void updateOrganization(User user, Organization organization) {
-        Server.logger.info("Обновление организации id#" + organization.getId());
+public void updateOrganization(User user, Organization organization) {
+    Server.logger.info("Обновление организации id#" + organization.getId());
 
-        var session = sessionFactory.getCurrentSession();
+    try (var session = sessionFactory.openSession()) { // Open a new session
         session.beginTransaction();
+
         var organizationDAO = session.get(OrganizationDAO.class, organization.getId());
         organizationDAO.setCreator(session.get(UserDAO.class, user.getId()));
         organizationDAO.update(organization);
 
         session.update(organizationDAO);
         session.getTransaction().commit();
-        session.close();
         Server.logger.info("Обновление организации выполнено!");
+    } catch (Exception e) {
+        Server.logger.severe("Ошибка при обновлении организации: " + e.getMessage());
+        throw e;
     }
+}
 
     public void clear(User user) {
         Server.logger.info("Очищение продуктов пользователя id#" + user.getId() + " из базы данных.");

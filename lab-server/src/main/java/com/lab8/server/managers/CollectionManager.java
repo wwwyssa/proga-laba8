@@ -168,6 +168,23 @@ public class CollectionManager {
         return new ExecutionResponse(false,  new AnswerString("Элемент коллекции введён неверно!"));
     }
 
+    public ExecutionResponse update(Product product, User user) {
+        lock.writeLock().lock();
+        try {
+            long id = product.getId();
+            collection.remove(id);
+            ExecutionResponse updStatus = persistenceManager.update(user, product);
+            if (updStatus.getExitCode()) {
+                collection.remove(id);
+                collection.put(id, product);
+            }
+            Server.logger.info(collection.toString());
+            return updStatus;
+        }  finally {
+            lock.writeLock().unlock();
+        }
+    }
+
 
     /**
      * Removes a product from the collection.

@@ -141,7 +141,8 @@ public class Server {
             register("removeGreater", new RemoveGreater(collectionManager));
             register("executeScript", new VoidCommand("execute_script", "исполнить скрипт из файла", this));
             register("exit", new VoidCommand("exit", "завершить программу", this));
-        }};
+            register("update", new Update(collectionManager));
+            }};
         runner = new Runner(commandManager);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
