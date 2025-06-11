@@ -5,8 +5,12 @@ import com.lab8.common.models.Product;
 import com.lab8.common.util.User;
 import com.lab8.common.util.executions.AnswerString;
 import com.lab8.common.util.executions.ExecutionResponse;
+import com.lab8.common.util.executions.ListAnswer;
 import com.lab8.common.validators.NoArgumentsValidator;
 import com.lab8.server.managers.CollectionManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MinByName extends Command<NoArgumentsValidator> {
@@ -31,6 +35,8 @@ public class MinByName extends Command<NoArgumentsValidator> {
         if (minProduct == null) {
             return new ExecutionResponse<>(false, new AnswerString("Произошла ошибка при поиске элемента с минимальным именем."));
         }
-        return new ExecutionResponse<>(true, new AnswerString(minProduct.toString()));
+        List<Product> products = new ArrayList<>();
+        products.add(minProduct);
+        return new ExecutionResponse<>(true, new ListAnswer(products));
     }
 }

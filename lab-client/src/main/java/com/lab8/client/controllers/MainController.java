@@ -8,14 +8,17 @@ import com.lab8.common.models.Organization;
 import com.lab8.common.models.Product;
 import com.lab8.common.util.Request;
 import com.lab8.common.util.Response;
-
 import com.lab8.common.util.executions.ExecutionResponse;
+
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -25,6 +28,7 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -39,7 +43,6 @@ public class MainController {
     private final UpdatingManager updatingManager = new UpdatingManager(this);
     private Runnable authCallback;
 
-    private List<Product> collection;
     private final HashMap<String, Locale> localeMap = new HashMap<>() {{
         put("Русский", new Locale("ru", "RU"));
         put("English(CA)", new Locale("en", "CA"));
@@ -136,7 +139,7 @@ public class MainController {
             changeLanguage();
         });
 
-        //тут непосредственно сортировка
+        //тут непосредственно сортировка todo запихать в отдельный класс???
         idColumn.setCellValueFactory(product -> new SimpleLongProperty(product.getValue().getId()).asObject());
         ownerColumn.setCellValueFactory(product -> new SimpleStringProperty(product.getValue().getCreator()));
         nameColumn.setCellValueFactory(product -> new SimpleStringProperty(product.getValue().getName()));
@@ -208,7 +211,6 @@ public class MainController {
             return row;
         });
 
-        tableTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         updatingManager.refresh();
         visualTab.setOnSelectionChanged(event -> visualisationManager.drawCollection(tableTable.getItems()));
 
@@ -263,18 +265,6 @@ public class MainController {
     }
 
     @FXML
-    private void minByName() {
-        try { // fixme вывод в нормальную микро таблицу, а не это всё
-            ConnectionManager.getInstance().send(new Request("minByName", SessionHandler.getCurrentUser()));
-            Response response = ConnectionManager.getInstance().receive();
-            String minByName = (String) response.getExecutionStatus().getAnswer().getAnswer();
-            DialogManager.createAlert(localizator.getKeyString("MinByName"), minByName, Alert.AlertType.INFORMATION, true);
-        } catch (ClassNotFoundException | IOException e) {
-            DialogManager.alert("UnavailableError", localizator);
-        }
-    }
-
-    @FXML
     private void clear() {
         try {
             ConnectionManager.getInstance().send(new Request("clear", SessionHandler.getCurrentUser()));
@@ -290,13 +280,49 @@ public class MainController {
         }
     }
 
+    public void showItemWindow(List<Product> products) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/itemView.fxml"));
+            Parent root = loader.load();
+            ItemViewController controller = loader.getController();
+            controller.setLocalizator(localizator);
+            controller.setCollection(products);
+            Stage stage = new Stage();
+            controller.setStage(stage);
+
+            stage.setTitle("Информация о продукте");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            DialogManager.alert("Error", localizator);
+        }
+    }
+
+    @FXML
+    private void minByName() {
+        try {
+            ConnectionManager.getInstance().send(new Request("minByName", SessionHandler.getCurrentUser()));
+            ExecutionResponse<?> ExecutionResponse = ConnectionManager.getInstance().receive().getExecutionStatus();
+            if (ExecutionResponse.getExitCode()) {
+                showItemWindow((List<Product>) ExecutionResponse.getAnswer().getAnswer());
+            } else {
+                DialogManager.createAlert(localizator.getKeyString("Error"), ExecutionResponse.getAnswer().toString(), Alert.AlertType.ERROR, false);
+            }
+        } catch (ClassNotFoundException | IOException e) {
+            DialogManager.alert("UnavailableError", localizator);
+        }
+    }
+
     @FXML
     private void printFieldAscendingPartNumber() {
-        try { // fixme вывод в нормальную таблицу
+        try {
             ConnectionManager.getInstance().send(new Request("printFieldAscendingPartNumber", SessionHandler.getCurrentUser()));
-            Response response = ConnectionManager.getInstance().receive();
-            String result = response.getExecutionStatus().getAnswer().getAnswer().toString();
-            DialogManager.createAlert(localizator.getKeyString("PrintFieldAscendingPartNumber"), result, Alert.AlertType.INFORMATION, true);
+            ExecutionResponse<?> ExecutionResponse = ConnectionManager.getInstance().receive().getExecutionStatus();
+            if (ExecutionResponse.getExitCode()) {
+                showItemWindow((List<Product>) ExecutionResponse.getAnswer().getAnswer());
+            } else {
+                DialogManager.createAlert(localizator.getKeyString("Error"), ExecutionResponse.getAnswer().toString(), Alert.AlertType.ERROR, false);
+            }
         } catch (ClassNotFoundException | IOException e) {
             DialogManager.alert("UnavailableError", localizator);
         }
@@ -362,7 +388,7 @@ public class MainController {
             editController.show();
             Product product = editController.getProduct();
             ConnectionManager.getInstance().send(new Request("removeGreater", product, SessionHandler.getCurrentUser()));
-            Response response = ConnectionManager.getInstance().receive(); // fixme и че это
+            Response response = ConnectionManager.getInstance().receive();
         } catch (ClassNotFoundException | IOException e) {
             DialogManager.alert("UnavailableError", localizator);
         }
@@ -374,14 +400,9 @@ public class MainController {
         // TODO: Реализовать обработку кнопки "Execute Script"
     }
 
-
     private void doubleClickUpdate(Product product) {
-        doubleClickUpdate(product, true); // умом
-    }
-
-    private void doubleClickUpdate(Product product, boolean ignoreAnotherUser) {
         // System.out.print("Double click on row: " + product);
-        if (product.getCreator().equals(SessionHandler.getCurrentUser().getName()) || !ignoreAnotherUser) {
+        if (product.getCreator().equals(SessionHandler.getCurrentUser().getName())) {
             editController.fill(product);
             editController.show();
             Product updatedProduct = editController.getProduct();
@@ -457,7 +478,7 @@ public class MainController {
     }
 
     public void setCollection(List<Product> collection) {
-        this.collection = collection;
+        //this.collection = collection;
         tableTable.setItems(FXCollections.observableArrayList(collection));
     }
 

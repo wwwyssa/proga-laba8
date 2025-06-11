@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="296.0" prefWidth="927.0" style="-fx-background-color: #d2efff;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.lab8.client.controllers.ItemViewController">
+    <VBox alignment="CENTER" layoutX="14.0" layoutY="69.0" prefHeight="298.0" prefWidth="919.0" spacing="10">
+        <Label fx:id="titleLabel" text="Информация о продукте">
+            <font>
+                <Font name="Segoe UI Black" size="20.0" />
+            </font>
+        </Label>
+        <TableView fx:id="tableTable" prefHeight="236.0" prefWidth="917.0">
+            <columns>
+                <TableColumn fx:id="idColumn" text="ID" />
+                <TableColumn fx:id="ownerColumn" text="Owner" />
+                <TableColumn fx:id="nameColumn" text="Name" />
+                <TableColumn fx:id="coordinatesXColumn" text="Coordinates X" />
+                <TableColumn fx:id="coordinatesYColumn" text="Coordinates Y" />
+                <TableColumn fx:id="creationDateColumn" text="Creation Date" />
+                <TableColumn fx:id="priceColumn" text="Price" />
+                <TableColumn fx:id="partNumberColumn" text="Part Number" />
+                <TableColumn fx:id="manufactureCostColumn" text="Manufacture Cost" />
+                <TableColumn fx:id="unitOfMeasureColumn" text="Unit of Measure" />
+                <TableColumn fx:id="manufacturerIdColumn" text="Manufacturer ID" />
+                <TableColumn fx:id="manufacturerNameColumn" text="Manufacturer Name" />
+                <TableColumn fx:id="manufacturerEmployeesCountColumn" text="Employees Count" />
+                <TableColumn fx:id="manufacturerTypeColumn" text="Type" />
+                <TableColumn fx:id="manufacturerOfficialAddressStreetColumn" text="Street" />
+                <TableColumn fx:id="manufacturerOfficialAddressTownXColumn" text="TownX" />
+                <TableColumn fx:id="manufacturerOfficialAddressTownYColumn" text="TownY" />
+                <TableColumn fx:id="manufacturerOfficialAddressTownZColumn" text="TownZ" />
+            </columns>
+        </TableView>
+        <Button fx:id="closeButton" onAction="#closeWindow" prefHeight="30.0" prefWidth="100.0" style="-fx-background-radius: 10; -fx-border-radius: 10;" text="Закрыть" />
+    </VBox>
+</AnchorPane>

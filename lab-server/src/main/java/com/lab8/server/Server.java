@@ -34,7 +34,7 @@ import java.util.logging.SimpleFormatter;
  * Класс Server - основной класс сервера, который отвечает за запуск и управление сервером.
  */
 
-public class Server { // todo пофиксить обработку ключей (попробовать threadManager)
+public class Server {
 
     /**
      * Логгер для сервера
