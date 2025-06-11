@@ -3,26 +3,18 @@ package com.lab8.client.controllers;
 import com.lab8.client.Auth.SessionHandler;
 import com.lab8.client.managers.ConnectionManager;
 import com.lab8.client.managers.DialogManager;
-import com.lab8.client.util.Console;
 import com.lab8.client.util.Localizator;
 import com.lab8.common.models.Organization;
 import com.lab8.common.models.Product;
 import com.lab8.common.util.Request;
 import com.lab8.common.util.Response;
 
-import com.lab8.common.util.ValidAnswer;
-import com.lab8.common.util.executions.ExecutionResponse;
-import com.lab8.common.util.executions.ListAnswer;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -43,8 +35,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Random;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class MainController {
     private Localizator localizator;
@@ -372,7 +362,6 @@ public class MainController {
     }
 
     private void doubleClickUpdate(Product product, boolean ignoreAnotherUser) {
-        //todo по двойному клику нам надо изменять отдельные поля объекта
         System.out.print("Double click on row: " + product);
         if (product.getCreator().equals(SessionHandler.getCurrentUser().getName()) || !ignoreAnotherUser) {
             editController.fill(product);
@@ -462,6 +451,7 @@ public class MainController {
 
     public void setLocalizator(Localizator localizator) {
         this.localizator = localizator;
+        updatingManager.setLocalizator(localizator);
     }
 
     public Localizator getLocalizator() {
