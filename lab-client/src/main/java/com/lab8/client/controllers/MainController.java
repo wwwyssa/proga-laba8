@@ -9,6 +9,7 @@ import com.lab8.common.models.Product;
 import com.lab8.common.util.Request;
 import com.lab8.common.util.Response;
 
+import com.lab8.common.util.executions.ExecutionResponse;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
@@ -24,15 +25,13 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Random;
 import java.util.ResourceBundle;
 
 public class MainController {
@@ -48,14 +47,7 @@ public class MainController {
         put("Slovenian", new Locale("sl"));
     }};
 
-    private HashMap<String, Color> colorMap;
-    private HashMap<Integer, Label> infoMap;
-    private Random random;
-
     private EditController editController;
-    private IdInputController idInputController;
-    private Stage stage;
-
     @FXML
     private ComboBox<String> languageComboBox;
     @FXML
@@ -135,9 +127,6 @@ public class MainController {
 
     @FXML
     public void initialize() {
-        colorMap = new HashMap<>();
-        infoMap = new HashMap<>();
-        random = new Random();
         VisualisationManager visualisationManager = new VisualisationManager(visualPane);
         languageComboBox.setItems(FXCollections.observableArrayList(localeMap.keySet()));
         languageComboBox.setStyle("-fx-font: 13px \"Sergoe UI\";");
@@ -243,7 +232,6 @@ public class MainController {
         try {
             ConnectionManager.getInstance().send(new Request("help", SessionHandler.getCurrentUser()));
             Response response = ConnectionManager.getInstance().receive();
-            //String help = (String) response.getExecutionStatus().getAnswer().getAnswer(); //todo Help в идеале сделать так, чтобы сервер отправлял разный результат в зависимости от языка
             DialogManager.createAlert(localizator.getKeyString("Help"), localizator.getKeyString("HelpResult"), Alert.AlertType.INFORMATION, true);
         } catch (ClassNotFoundException | IOException e) {
             DialogManager.alert("UnavailableError", localizator);
@@ -255,8 +243,8 @@ public class MainController {
         try {
             ConnectionManager.getInstance().send(new Request("info", SessionHandler.getCurrentUser()));
             Response response = ConnectionManager.getInstance().receive();
-            //String info = (String) response.getExecutionStatus().getAnswer().getAnswer(); //todo Info Сделать так, чтобы сервер отправлял разный результат в зависимости от языка
-            DialogManager.createAlert(localizator.getKeyString("Info"), localizator.getKeyString("InfoResult"), Alert.AlertType.INFORMATION, true);
+            List<String> infoList = (List<String>) response.getExecutionStatus().getAnswer().getAnswer();
+            DialogManager.createAlert(localizator.getKeyString("Info"), MessageFormat.format(localizator.getKeyString("InfoResult"), infoList.get(0), infoList.get(1), infoList.get(2), infoList.get(3)), Alert.AlertType.INFORMATION, true);
         } catch (ClassNotFoundException | IOException e) {
             DialogManager.alert("UnavailableError", localizator);
         }
@@ -264,11 +252,11 @@ public class MainController {
 
     @FXML
     private void averageOfManufactureCost() {
-        try {// fixme с сервера приходит русский текст, а должно одно число
+        try {
             ConnectionManager.getInstance().send(new Request("averageOfManufactureCost", SessionHandler.getCurrentUser()));
-            Response response = ConnectionManager.getInstance().receive();
-            String averageCost = (String) response.getExecutionStatus().getAnswer().getAnswer();
-            DialogManager.createAlert(localizator.getKeyString("AverageOfManufactureCost"), averageCost, Alert.AlertType.INFORMATION, true);
+            ExecutionResponse<?> executionResponse = ConnectionManager.getInstance().receive().getExecutionStatus();
+            String averageCost = executionResponse.getAnswer().getAnswer().toString().split(": ")[1];
+            DialogManager.createAlert(localizator.getKeyString("AverageOfManufactureCost"), localizator.getKeyString("AverageOfManufactureCostResult") + averageCost, Alert.AlertType.INFORMATION, true);
         } catch (ClassNotFoundException | IOException e) {
             DialogManager.alert("UnavailableError", localizator);
         }
@@ -392,8 +380,7 @@ public class MainController {
     }
 
     private void doubleClickUpdate(Product product, boolean ignoreAnotherUser) {
-        //todo по двойному клику нам надо изменять отдельные поля объекта
-        System.out.print("Double click on row: " + product);
+        // System.out.print("Double click on row: " + product);
         if (product.getCreator().equals(SessionHandler.getCurrentUser().getName()) || !ignoreAnotherUser) {
             editController.fill(product);
             editController.show();

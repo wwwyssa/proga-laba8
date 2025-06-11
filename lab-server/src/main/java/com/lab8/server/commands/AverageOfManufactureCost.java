@@ -26,7 +26,7 @@ public class AverageOfManufactureCost extends Command<NoArgumentsValidator>{
 
     @Override
     public ExecutionResponse innerExecute(String arguments, User user) {
-        if (collectionManager.getCollection().isEmpty()) return new ExecutionResponse<>(false, new AnswerString("Коллекция пуста!"));
+        if (collectionManager.getCollection().isEmpty()) return new ExecutionResponse<>(true, new AnswerString("Коллекция пуста! Среднее значение поля manufactureCost для всех элементов коллекции: 0"));
 
         double sum = 0;
         for (var product : collectionManager.getCollection().values()) {

@@ -5,10 +5,13 @@ package com.lab8.server.commands;
 import com.lab8.common.util.User;
 import com.lab8.common.util.executions.AnswerString;
 import com.lab8.common.util.executions.ExecutionResponse;
+import com.lab8.common.util.executions.ListAnswer;
 import com.lab8.common.validators.NoArgumentsValidator;
 import com.lab8.server.managers.CollectionManager;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Команда 'info'. Выводит информацию о коллекции.
@@ -37,11 +40,11 @@ public class Info extends Command<NoArgumentsValidator> {
         String lastSaveTimeString = (lastSaveTime == null) ? "в данной сессии сохранения еще не происходило" :
                 lastSaveTime.toLocalDate().toString() + " " + lastSaveTime.toLocalTime().toString();
 
-        String s = "Сведения о коллекции:\n";
-        s+=" Тип: " + collectionManager.getCollection().getClass().toString()+"\n";
-        s+=" Количество элементов: " + collectionManager.getCollection().size()+"\n";
-        s+=" Дата последнего сохранения: " + lastSaveTimeString+"\n";
-        s+=" Дата последней инициализации: " + lastInitTimeString;
-        return new ExecutionResponse<>(new AnswerString(s));
+        List<String> list = new ArrayList<>();
+        list.add(collectionManager.getCollection().getClass().toString());
+        list.add(String.valueOf(collectionManager.getCollection().size()));
+        list.add(lastSaveTimeString);
+        list.add(lastInitTimeString);
+        return new ExecutionResponse<>(new ListAnswer(list));
     }
 }
