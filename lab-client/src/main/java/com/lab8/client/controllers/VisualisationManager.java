@@ -1,16 +1,23 @@
 package com.lab8.client.controllers;
 
 import com.lab8.client.managers.DialogManager;
+import com.lab8.client.util.Localizator;
 import com.lab8.common.models.Product;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.List;
 
@@ -25,14 +32,14 @@ public class VisualisationManager {
         this.visualPane = visualPane;
     }
 
-    public void drawCollection(List<Product> collection) {
+    public void drawCollection(List<Product> collection, Localizator localizator) {
         visualPane.getChildren().clear(); // Clear previous drawings
         for (Product product : collection) {
             double centerX = product.getCoordinates().getX();
             double centerY = product.getCoordinates().getY();
             double radius = Math.sqrt(product.getPrice());
             String color = String.format("rgb(%d, %d, %d)", random.nextInt(256), random.nextInt(256), random.nextInt(256));
-            drawProduct(centerX, centerY, product); // Pass the Product object
+            drawProduct(centerX, centerY, product, localizator); // Pass the Product object
         }
     }
 
@@ -47,7 +54,7 @@ public class VisualisationManager {
     }
 
 
-    public void drawProduct(double centerX, double centerY, Product product) {
+    public void drawProduct(double centerX, double centerY, Product product, Localizator localizator) {
 
         int randomNumber = random.nextInt(8) + 1;
         Image image = new Image(getClass().getResource("/images/" + randomNumber + ".png").toExternalForm());
@@ -62,17 +69,38 @@ public class VisualisationManager {
 
 
 
-        // Add click event to display Product ID
+
         imageView.setOnMouseClicked(event -> {
             System.out.println("Product ID: " + product.getId());
-            DialogManager.createAlert("Product ID", "ID: " + product.getId(), Alert.AlertType.INFORMATION, false);
+            List<Product> tmp = new ArrayList<>();
+            tmp.add(product);
+            showItemWindow(tmp, localizator);
             double newSize = Math.sqrt(product.getPrice());
+
             imageView.setFitWidth(max(newSize, 25));
             imageView.setFitHeight(max(newSize, 25));
             drawFlag(centerX, centerY, newSize);
         });
 
         visualPane.getChildren().add(imageView);
+    }
+
+    public void showItemWindow(List<Product> products, Localizator localizator) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/itemView.fxml"));
+            Parent root = loader.load();
+            ItemViewController controller = loader.getController();
+            controller.setLocalizator(localizator);
+            controller.setCollection(products);
+            Stage stage = new Stage();
+            controller.setStage(stage);
+
+            stage.setTitle("Информация о продукте");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            DialogManager.alert("Error", localizator);
+        }
     }
 
     public void drawFlag(double centerX, double centerY, double size) {

@@ -217,7 +217,7 @@ public class MainController {
 
         tableTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         updatingManager.refresh();
-        visualTab.setOnSelectionChanged(event -> visualisationManager.drawCollection(tableTable.getItems()));
+        visualTab.setOnSelectionChanged(event -> visualisationManager.drawCollection(tableTable.getItems(), localizator));
 
     }
 
