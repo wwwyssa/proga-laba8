@@ -2,6 +2,7 @@ package com.lab8.client.controllers;
 
 import com.lab8.client.Auth.SessionHandler;
 import com.lab8.client.managers.AuthenticationManager;
+import com.lab8.client.managers.ConnectionManager;
 import com.lab8.client.managers.DialogManager;
 import com.lab8.client.util.Localizator;
 import com.lab8.common.util.User;
@@ -67,6 +68,7 @@ public class AuthController {
 
     public void authenticate(boolean isRegistration) {
         try {
+            ConnectionManager.getInstance().connect();
             if (!validateLogin()) return;
             String Command = isRegistration ? "register" : "login";
 
@@ -86,7 +88,7 @@ public class AuthController {
                 callback.run();
             }
         } catch (ClassNotFoundException | IOException e) {
-            throw new RuntimeException(e);
+            DialogManager.alert("UnavailableError", localizator);
         }
     }
 
