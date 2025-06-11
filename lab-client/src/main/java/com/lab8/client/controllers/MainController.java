@@ -36,7 +36,12 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Random;
+import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -44,7 +49,6 @@ public class MainController {
     private Localizator localizator;
     private final UpdatingManager updatingManager = new UpdatingManager(this);
     private Runnable authCallback;
-    private volatile boolean isRefreshing = true;
 
     private List<Product> collection;
 

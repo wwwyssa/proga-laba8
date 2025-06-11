@@ -3,6 +3,7 @@ server_logs.log.lck
 dbconfig.properties
 **/*.iml
 **/target/
+out
 *.iml
 .idea
 *.jar

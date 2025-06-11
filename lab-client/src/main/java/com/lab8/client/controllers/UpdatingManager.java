@@ -15,7 +15,7 @@ import java.util.List;
 public class UpdatingManager {
     private final MainController mainController;
     private final Localizator localizator;
-    private boolean isRefreshing;
+    private volatile boolean isRefreshing;
 
     public UpdatingManager(MainController mainController) {
         this.mainController = mainController;
