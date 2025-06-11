@@ -3,26 +3,18 @@ package com.lab8.client.controllers;
 import com.lab8.client.Auth.SessionHandler;
 import com.lab8.client.managers.ConnectionManager;
 import com.lab8.client.managers.DialogManager;
-import com.lab8.client.util.Console;
 import com.lab8.client.util.Localizator;
 import com.lab8.common.models.Organization;
 import com.lab8.common.models.Product;
 import com.lab8.common.util.Request;
 import com.lab8.common.util.Response;
 
-import com.lab8.common.util.ValidAnswer;
-import com.lab8.common.util.executions.ExecutionResponse;
-import com.lab8.common.util.executions.ListAnswer;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -32,7 +24,6 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -43,8 +34,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Random;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class MainController {
     private Localizator localizator;
@@ -252,9 +241,9 @@ public class MainController {
     @FXML
     public void help() {
         try {
-            ConnectionManager.getInstance().send(new Request("Help", SessionHandler.getCurrentUser()));
+            ConnectionManager.getInstance().send(new Request("help", SessionHandler.getCurrentUser()));
             Response response = ConnectionManager.getInstance().receive();
-            //String help = (String) response.getExecutionStatus().getAnswer().getAnswer(); //todo в идеале сделать так, чтобы сервер отправлял разный результат в зависимости от языка
+            //String help = (String) response.getExecutionStatus().getAnswer().getAnswer(); //todo Help в идеале сделать так, чтобы сервер отправлял разный результат в зависимости от языка
             DialogManager.createAlert(localizator.getKeyString("Help"), localizator.getKeyString("HelpResult"), Alert.AlertType.INFORMATION, true);
         } catch (ClassNotFoundException | IOException e) {
             DialogManager.alert("UnavailableError", localizator);
@@ -263,17 +252,38 @@ public class MainController {
 
     @FXML
     private void info() {
-        // TODO: Реализовать обработку кнопки "Info"
+        try {
+            ConnectionManager.getInstance().send(new Request("info", SessionHandler.getCurrentUser()));
+            Response response = ConnectionManager.getInstance().receive();
+            //String info = (String) response.getExecutionStatus().getAnswer().getAnswer(); //todo Info Сделать так, чтобы сервер отправлял разный результат в зависимости от языка
+            DialogManager.createAlert(localizator.getKeyString("Info"), localizator.getKeyString("InfoResult"), Alert.AlertType.INFORMATION, true);
+        } catch (ClassNotFoundException | IOException e) {
+            DialogManager.alert("UnavailableError", localizator);
+        }
     }
 
     @FXML
     private void averageOfManufactureCost() {
-        // TODO: Реализовать обработку кнопки "Average of Manufacture Cost"
+        try {// fixme с сервера приходит русский текст, а должно одно число
+            ConnectionManager.getInstance().send(new Request("averageOfManufactureCost", SessionHandler.getCurrentUser()));
+            Response response = ConnectionManager.getInstance().receive();
+            String averageCost = (String) response.getExecutionStatus().getAnswer().getAnswer();
+            DialogManager.createAlert(localizator.getKeyString("AverageOfManufactureCost"), averageCost, Alert.AlertType.INFORMATION, true);
+        } catch (ClassNotFoundException | IOException e) {
+            DialogManager.alert("UnavailableError", localizator);
+        }
     }
 
     @FXML
     private void minByName() {
-        // TODO: Реализовать обработку кнопки "Min by Name"
+        try { // fixme вывод в нормальную микро таблицу, а не это всё
+            ConnectionManager.getInstance().send(new Request("minByName", SessionHandler.getCurrentUser()));
+            Response response = ConnectionManager.getInstance().receive();
+            String minByName = (String) response.getExecutionStatus().getAnswer().getAnswer();
+            DialogManager.createAlert(localizator.getKeyString("MinByName"), minByName, Alert.AlertType.INFORMATION, true);
+        } catch (ClassNotFoundException | IOException e) {
+            DialogManager.alert("UnavailableError", localizator);
+        }
     }
 
     @FXML
@@ -294,13 +304,45 @@ public class MainController {
 
     @FXML
     private void printFieldAscendingPartNumber() {
-        // TODO: Реализовать обработку кнопки "Print Field Ascending Part Number"
+        try { // fixme вывод в нормальную таблицу
+            ConnectionManager.getInstance().send(new Request("printFieldAscendingPartNumber", SessionHandler.getCurrentUser()));
+            Response response = ConnectionManager.getInstance().receive();
+            String result = response.getExecutionStatus().getAnswer().getAnswer().toString();
+            DialogManager.createAlert(localizator.getKeyString("PrintFieldAscendingPartNumber"), result, Alert.AlertType.INFORMATION, true);
+        } catch (ClassNotFoundException | IOException e) {
+            DialogManager.alert("UnavailableError", localizator);
+        }
+    }
+
+    private void idCommand(String commandLocalizatorKey, String commandInRequest) {
+        Optional<String> input = DialogManager.createDialog(localizator.getKeyString(commandLocalizatorKey), "ID: ");
+        if (input.isPresent()) {
+            try {
+                long id = Long.parseLong(input.get());
+                ConnectionManager.getInstance().send(new Request(commandInRequest + ' ' + id, SessionHandler.getCurrentUser()));
+                Response response = ConnectionManager.getInstance().receive();
+                if (response.getExecutionStatus().getExitCode()) {
+                    DialogManager.createAlert(localizator.getKeyString(commandLocalizatorKey), localizator.getKeyString(commandLocalizatorKey + "Suc"), Alert.AlertType.INFORMATION, false);
+                } else {
+                    DialogManager.createAlert(localizator.getKeyString("Error"), response.getExecutionStatus().getAnswer().toString(), Alert.AlertType.ERROR, false);
+                }
+            } catch (NumberFormatException e) {
+                DialogManager.createAlert(localizator.getKeyString("Error"), localizator.getKeyString("InvalidIDFormat"), Alert.AlertType.ERROR, false);
+            } catch (ClassNotFoundException | IOException e) {
+                DialogManager.alert("UnavailableError", localizator);
+            }
+        }
+        updatingManager.loadCollection();
     }
 
     @FXML
     private void removeGreaterKey() {
-        // TODO: penis
+        idCommand("RemoveGreaterKey", "removeGreaterKey");
+    }
 
+    @FXML
+    private void removeById() {
+        idCommand("RemoveByID", "removeById");
     }
 
     @FXML
@@ -323,28 +365,6 @@ public class MainController {
                 DialogManager.alert("UnavailableError", localizator);
             }
         }
-    }
-
-    @FXML
-    private void removeById() {
-        Optional<String> input = DialogManager.createDialog(localizator.getKeyString("RemoveByID"), "ID: ");
-        if (input.isPresent()) {
-            try {
-                long id = Long.parseLong(input.get());
-                ConnectionManager.getInstance().send(new Request("removeById " + id, SessionHandler.getCurrentUser()));
-                Response response = ConnectionManager.getInstance().receive();
-                if (response.getExecutionStatus().getExitCode()) {
-                    DialogManager.createAlert(localizator.getKeyString("RemoveByID"), localizator.getKeyString("RemoveByIDSuc"), Alert.AlertType.INFORMATION, false);
-                } else {
-                    DialogManager.createAlert(localizator.getKeyString("Error"), response.getExecutionStatus().getAnswer().toString(), Alert.AlertType.ERROR, false);
-                }
-            } catch (NumberFormatException e) {
-                DialogManager.createAlert(localizator.getKeyString("Error"), localizator.getKeyString("InvalidIDFormat"), Alert.AlertType.ERROR, false);
-            } catch (ClassNotFoundException | IOException e) {
-                DialogManager.alert("UnavailableError", localizator);
-            }
-        }
-        updatingManager.loadCollection();
     }
 
     @FXML
@@ -388,20 +408,23 @@ public class MainController {
                     Response response = ConnectionManager.getInstance().receive();
                     if (response.getExecutionStatus().getExitCode()) {
                         DialogManager.createAlert(localizator.getKeyString("update"), localizator.getKeyString("update"), Alert.AlertType.INFORMATION, false);
+                        // Обновление коллекции в TableView
+                        int index = tableTable.getItems().indexOf(product);
+                        if (index != -1) {
+                            tableTable.getItems().set(index, updatedProduct);
+                        }
                     } else {
                         DialogManager.createAlert(localizator.getKeyString("Error"), response.getExecutionStatus().getAnswer().toString(), Alert.AlertType.ERROR, false);
                     }
                 } catch (ClassNotFoundException | IOException e) {
                     DialogManager.alert("UnavailableError", localizator);
                 }
-                updatingManager.loadCollection();
             }
         } else {
             DialogManager.createAlert(localizator.getKeyString("Error"), localizator.getKeyString("NotYourProduct"), Alert.AlertType.ERROR, false);
         }
     }
 
-    //todo по-хорошему абстрактный контроллер
     public void changeLanguage() {
         userLabel.setText(localizator.getKeyString("UserLabel") + " " + SessionHandler.getCurrentUser().getName());
 
@@ -463,9 +486,5 @@ public class MainController {
     public void setLocalizator(Localizator localizator) {
         this.localizator = localizator;
         updatingManager.setLocalizator(localizator);
-    }
-
-    public Localizator getLocalizator() {
-        return localizator;
     }
 }
