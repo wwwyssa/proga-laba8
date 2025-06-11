@@ -31,6 +31,7 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -50,7 +51,6 @@ public class MainController {
     private Runnable authCallback;
 
     private List<Product> collection;
-
     private final HashMap<String, Locale> localeMap = new HashMap<>() {{
         put("Русский", new Locale("ru", "RU"));
         put("English(CA)", new Locale("en", "CA"));
@@ -157,7 +157,7 @@ public class MainController {
             changeLanguage();
         });
 
-
+        //тут непосредственно сортировка
         idColumn.setCellValueFactory(product -> new SimpleLongProperty(product.getValue().getId()).asObject());
         ownerColumn.setCellValueFactory(product -> new SimpleStringProperty(product.getValue().getCreator()));
         nameColumn.setCellValueFactory(product -> new SimpleStringProperty(product.getValue().getName()));
@@ -217,6 +217,8 @@ public class MainController {
             return null;
         });
 
+
+
         tableTable.setRowFactory(tableView -> {
             var row = new TableRow<Product>();
             row.setOnMouseClicked(mouseEvent -> {
@@ -226,9 +228,11 @@ public class MainController {
             });
             return row;
         });
+
         tableTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         updatingManager.refresh();
         visualTab.setOnSelectionChanged(event -> visualisationManager.drawCollection(tableTable.getItems()));
+
     }
 
     @FXML
@@ -313,7 +317,7 @@ public class MainController {
                 ConnectionManager.getInstance().send(new Request("removeById " + id, SessionHandler.getCurrentUser()));
                 Response response = ConnectionManager.getInstance().receive();
                 if (response.getExecutionStatus().getExitCode()) {
-                    DialogManager.createAlert(localizator.getKeyString("RemoveByID"), localizator.getKeyString("RemoveByIDResult"), Alert.AlertType.INFORMATION, false);
+                    DialogManager.createAlert(localizator.getKeyString("RemoveByID"), localizator.getKeyString("RemoveByIDSuc"), Alert.AlertType.INFORMATION, false);
                 } else {
                     DialogManager.createAlert(localizator.getKeyString("Error"), response.getExecutionStatus().getAnswer().toString(), Alert.AlertType.ERROR, false);
                 }
@@ -393,6 +397,7 @@ public class MainController {
         manufacturerOfficialAddressTownXColumn.setText(localizator.getKeyString("ManufacturerTownX"));
         manufacturerOfficialAddressTownYColumn.setText(localizator.getKeyString("ManufacturerTownY"));
         manufacturerOfficialAddressTownZColumn.setText(localizator.getKeyString("ManufacturerTownZ"));
+
 
         editController.changeLanguage();
         //updatingManager.loadCollection();
