@@ -30,7 +30,6 @@ public class App extends Application {
     private static int attempts = 1;
     private static final ConnectionManager networkManager = ConnectionManager.getInstance();
     private static Map<String, Pair<ArgumentValidator, Boolean>> commandsData;
-
     public static void main(String[] args) {
         console.println("Запуск клиента..."); //fixme клиент не может переподключиться после открытия окна
         do {

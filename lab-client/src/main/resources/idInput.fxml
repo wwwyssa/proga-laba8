@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.lab8.client.controllers.IdInputController"
+            prefHeight="200.0" prefWidth="300.0">
+    <VBox spacing="10" alignment="CENTER" prefWidth="300.0" prefHeight="200.0">
+        <Label text="Enter a number:"/>
+        <TextField fx:id="numberInput" promptText="Enter a number"/>
+        <Button text="Confirm" onAction="#confirmInput"/>
+    </VBox>
+</AnchorPane>

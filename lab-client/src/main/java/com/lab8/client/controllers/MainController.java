@@ -32,14 +32,11 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -63,6 +60,7 @@ public class MainController {
     private Random random;
 
     private EditController editController;
+    private IdInputController idInputController;
     private Stage stage;
 
     @FXML
@@ -147,13 +145,16 @@ public class MainController {
         colorMap = new HashMap<>();
         infoMap = new HashMap<>();
         random = new Random();
-
+        VisualisationManager visualisationManager = new VisualisationManager(visualPane);
         languageComboBox.setItems(FXCollections.observableArrayList(localeMap.keySet()));
         languageComboBox.setStyle("-fx-font: 13px \"Sergoe UI\";");
         languageComboBox.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             localizator.setBundle(ResourceBundle.getBundle("locales/gui", localeMap.get(newValue)));
             changeLanguage();
         });
+
+
+
         idColumn.setCellValueFactory(product -> new SimpleLongProperty(product.getValue().getId()).asObject());
         ownerColumn.setCellValueFactory(product -> new SimpleStringProperty(product.getValue().getCreator()));
         nameColumn.setCellValueFactory(product -> new SimpleStringProperty(product.getValue().getName()));
@@ -223,8 +224,14 @@ public class MainController {
             return row;
         });
         updatingManager.refresh();
-        //visualTab.setOnSelectionChanged(event -> visualise(false)); //todo тут должна быть визуализация коллекции
+        visualTab.setOnSelectionChanged(event -> visualisationManager.drawCollection(tableTable.getItems()));
+        //visualTab.setOnSelectionChanged(event -> visualisationManager.drowHohol(269, 100));
+        //visualisationManager.drawCollection(collection); //todo тут должна быть визуализация коллекции
     }
+
+
+
+
 
     @FXML
     public void exit() {
@@ -278,7 +285,8 @@ public class MainController {
 
     @FXML
     private void removeGreaterKey() {
-        // TODO: Реализовать обработку кнопки "Remove Greater Key"
+        // TODO: penis
+
     }
 
     @FXML
@@ -296,16 +304,41 @@ public class MainController {
             }
         }
         updatingManager.loadCollection();
+
     }
 
     @FXML
     private void removeById() {
-        // TODO: Реализовать обработку кнопки "Remove by ID"
+        Optional<String> input = DialogManager.createDialog(localizator.getKeyString("RemoveByID"), "ID: ");
+        if (input.isPresent()) {
+            try {
+                long id = Long.parseLong(input.get());
+                ConnectionManager.getInstance().send(new Request("removeById " + id, SessionHandler.getCurrentUser()));
+                Response response = ConnectionManager.getInstance().receive();
+                if (response.getExecutionStatus().getExitCode()) {
+                    DialogManager.createAlert(localizator.getKeyString("RemoveByID"), localizator.getKeyString("RemoveByIDResult"), Alert.AlertType.INFORMATION, false);
+                } else {
+                    DialogManager.createAlert(localizator.getKeyString("Error"), response.getExecutionStatus().getAnswer().toString(), Alert.AlertType.ERROR, false);
+                }
+            } catch (NumberFormatException e) {
+                DialogManager.createAlert(localizator.getKeyString("Error"), localizator.getKeyString("InvalidIDFormat"), Alert.AlertType.ERROR, false);
+            } catch (ClassNotFoundException | IOException e) {
+                DialogManager.alert("UnavailableError", localizator);
+            }
+        }
     }
 
     @FXML
     private void removeGreater() {
-        // TODO: Реализовать обработку кнопки "Remove Greater"
+        try {
+            editController.clear();
+            editController.show();
+            Product product = editController.getProduct();
+            ConnectionManager.getInstance().send(new Request("removeGreater", product, SessionHandler.getCurrentUser()));
+            Response response = ConnectionManager.getInstance().receive();
+        } catch (ClassNotFoundException | IOException e) {
+            DialogManager.alert("UnavailableError", localizator);
+        }
     }
 
     @FXML
