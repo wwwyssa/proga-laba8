@@ -23,25 +23,10 @@ public class App extends Application {
     private Stage mainStage;
     private Localizator localizator;
     static Console console = new DefaultConsole();
-    private static int attempts = 1;
     private static final ConnectionManager networkManager = ConnectionManager.getInstance();
 
     public static void main(String[] args) {
-        console.println("Запуск клиента..."); //fixme клиент не может переподключиться после открытия окна
-        do {
-            try {
-                networkManager.connect();
-                attempts = 1;
-                launch();
-            } catch (IOException e) {
-                console.printError("Не удалось подключиться к серверу. Проверьте, запущен ли сервер и доступен ли он по адресу " + networkManager.getPort() + ":" + networkManager.getHost() + " попытка " + attempts);
-                try {
-                    Thread.sleep(2000);
-                    attempts++;
-                } catch (InterruptedException ignored) {}
-            }
-        } while (attempts < 5);
-        System.exit(0);
+        launch();
     }
 
     @Override

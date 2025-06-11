@@ -462,6 +462,7 @@ public class MainController {
 
     public void setLocalizator(Localizator localizator) {
         this.localizator = localizator;
+        updatingManager.setLocalizator(localizator);
     }
 
     public Localizator getLocalizator() {
