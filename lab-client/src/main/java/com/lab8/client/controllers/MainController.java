@@ -277,7 +277,18 @@ public class MainController {
 
     @FXML
     private void clear() {
-        // TODO: Реализовать обработку кнопки "Clear"
+        try {
+            ConnectionManager.getInstance().send(new Request("clear", SessionHandler.getCurrentUser()));
+            Response response = ConnectionManager.getInstance().receive();
+            if (response.getExecutionStatus().getExitCode()) {
+                DialogManager.createAlert(localizator.getKeyString("Clear"), localizator.getKeyString("ClearResult"), Alert.AlertType.INFORMATION, false);
+                updatingManager.loadCollection();
+            } else {
+                DialogManager.createAlert(localizator.getKeyString("Error"), response.getExecutionStatus().getAnswer().toString(), Alert.AlertType.ERROR, false);
+            }
+        } catch (ClassNotFoundException | IOException e) {
+            DialogManager.alert("UnavailableError", localizator);
+        }
     }
 
     @FXML
@@ -300,12 +311,17 @@ public class MainController {
             try {
                 ConnectionManager.getInstance().send(new Request("add", product, SessionHandler.getCurrentUser()));
                 Response response = ConnectionManager.getInstance().receive();
-                DialogManager.createAlert(localizator.getKeyString("Add"), localizator.getKeyString("AddResult"), Alert.AlertType.INFORMATION, false);
+                if (response.getExecutionStatus().getExitCode()){
+                    DialogManager.createAlert(localizator.getKeyString("Add"), localizator.getKeyString("AddResult"), Alert.AlertType.INFORMATION, false);
+                }
+                else {
+                    DialogManager.createAlert(localizator.getKeyString("Error"), response.getExecutionStatus().getAnswer().toString(), Alert.AlertType.ERROR, false);
+                }
+                updatingManager.loadCollection();
             } catch (ClassNotFoundException | IOException e) {
                 DialogManager.alert("UnavailableError", localizator);
             }
         }
-        updatingManager.loadCollection();
     }
 
     @FXML
@@ -337,7 +353,7 @@ public class MainController {
             editController.show();
             Product product = editController.getProduct();
             ConnectionManager.getInstance().send(new Request("removeGreater", product, SessionHandler.getCurrentUser()));
-            Response response = ConnectionManager.getInstance().receive();
+            Response response = ConnectionManager.getInstance().receive(); // fixme и че это
         } catch (ClassNotFoundException | IOException e) {
             DialogManager.alert("UnavailableError", localizator);
         }
