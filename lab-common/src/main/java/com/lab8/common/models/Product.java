@@ -80,7 +80,9 @@ public class Product implements Comparable<Product>, Validatable, Serializable {
         return creator;
     }
 
-
+    public void setCreator(String creator) {
+        this.creator = creator;
+    }
     /**
      * Возвращает идентификатор продукта.
      * @return идентификатор продукта

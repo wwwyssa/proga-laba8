@@ -30,6 +30,7 @@ public class Add  extends AskingCommand<NoArgumentsValidator> {
      */
     @Override
     public ExecutionResponse innerExecute(Product product, User user) {
+        product.setCreator(user.getName());
         System.out.println(product);
         System.out.println("User: " + user.getName());
         collectionManager.addProduct(product, user);

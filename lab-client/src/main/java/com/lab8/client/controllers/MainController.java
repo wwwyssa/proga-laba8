@@ -3,6 +3,7 @@ package com.lab8.client.controllers;
 import com.lab8.client.Auth.SessionHandler;
 import com.lab8.client.managers.ConnectionManager;
 import com.lab8.client.managers.DialogManager;
+import com.lab8.client.managers.ExecuteScript;
 import com.lab8.client.util.Localizator;
 import com.lab8.common.models.Organization;
 import com.lab8.common.models.Product;
@@ -28,8 +29,10 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.HashMap;
@@ -51,6 +54,7 @@ public class MainController {
     }};
 
     private EditController editController;
+    private Stage stage;
     @FXML
     private ComboBox<String> languageComboBox;
     @FXML
@@ -211,6 +215,7 @@ public class MainController {
             return row;
         });
 
+        tableTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         updatingManager.refresh();
         visualTab.setOnSelectionChanged(event -> visualisationManager.drawCollection(tableTable.getItems()));
 
@@ -388,7 +393,7 @@ public class MainController {
             editController.show();
             Product product = editController.getProduct();
             ConnectionManager.getInstance().send(new Request("removeGreater", product, SessionHandler.getCurrentUser()));
-            Response response = ConnectionManager.getInstance().receive();
+            Response response = ConnectionManager.getInstance().receive(); // fixme и че это
         } catch (ClassNotFoundException | IOException e) {
             DialogManager.alert("UnavailableError", localizator);
         }
@@ -397,8 +402,19 @@ public class MainController {
 
     @FXML
     private void executeScript() {
-        // TODO: Реализовать обработку кнопки "Execute Script"
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Script File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
+        File selectedFile = fileChooser.showOpenDialog(stage);
+
+        if (selectedFile != null) {
+            ExecuteScript.runScript(selectedFile.getAbsolutePath(), SessionHandler.getCurrentUser());
+
+        } else {
+            DialogManager.createAlert(localizator.getKeyString("Error"), localizator.getKeyString("FileNotSelected"), Alert.AlertType.ERROR, false);
+        }
     }
+
 
     private void doubleClickUpdate(Product product) {
         // System.out.print("Double click on row: " + product);

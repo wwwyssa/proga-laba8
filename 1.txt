@@ -1,4 +1,3 @@
-show
 add
 TEST
 2

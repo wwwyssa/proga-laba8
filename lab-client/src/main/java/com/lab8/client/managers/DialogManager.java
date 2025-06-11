@@ -19,8 +19,6 @@ public class DialogManager {
         DialogManager.createAlert(localizator.getKeyString("Info"), localizator.getKeyString(title), Alert.AlertType.INFORMATION, false);
     }
 
-
-
     public static void createAlert(String title, String content, Alert.AlertType type, boolean scrollable) {
         var alert = new Alert(type);
         alert.setTitle(title);
