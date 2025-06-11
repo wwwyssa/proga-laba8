@@ -19,6 +19,7 @@ public class VisualisationManager {
     }
 
     public void drawCollection(List<Product> collection){
+        visualPane.getChildren().clear(); // Clear previous drawings
         for (Product product : collection) {
             double centerX = product.getCoordinates().getX();
             double centerY = product.getCoordinates().getY();
