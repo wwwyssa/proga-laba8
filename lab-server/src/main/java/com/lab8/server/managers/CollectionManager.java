@@ -99,6 +99,7 @@ public class CollectionManager {
     public void clear(User user) {
         collection.clear();
         persistenceManager.clear(user);
+        load();
     }
 
     /**
