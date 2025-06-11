@@ -4,9 +4,10 @@ import com.lab8.client.Auth.SessionHandler;
 import com.lab8.client.managers.AuthenticationManager;
 import com.lab8.client.managers.DialogManager;
 import com.lab8.client.util.Localizator;
-import com.lab8.client.util.exceptions.UserAlreadyExistsException;
 import com.lab8.common.util.User;
 
+import com.lab8.common.util.executions.AnswerString;
+import com.lab8.common.util.executions.ExecutionResponse;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -56,11 +57,6 @@ public class AuthController {
             SessionHandler.setCurrentLanguage(newValue);
             changeLanguage();
         });
-        loginField.textProperty().addListener((observableValue, oldValue, newValue) -> {
-            if (!newValue.matches(".{0,40}")) {
-                loginField.setText(oldValue); //todo мб убрать это ограничение
-            }
-        });
     }
 
     @FXML
@@ -73,27 +69,30 @@ public class AuthController {
         try {
             if (!validateLogin()) return;
             String Command = isRegistration ? "register" : "login";
-            User user = AuthenticationManager.authenticateUser(loginField.getText(), passwordField.getText(), Command);
 
-            if (user == null) {
-                throw new UserAlreadyExistsException();
+            ExecutionResponse<AnswerString> authenticateStatus = (ExecutionResponse<AnswerString>) AuthenticationManager.authenticateUser(loginField.getText(), passwordField.getText(), Command);
+            if (authenticateStatus == null) {
+                DialogManager.alert("ServerError", localizator);
+                return;
+            } else if (!authenticateStatus.getExitCode()) {
+                DialogManager.alert(authenticateStatus.getAnswer().getAnswer(), localizator);
+                return;
             }
-
-            SessionHandler.setCurrentUser(user);
-            SessionHandler.setCurrentLanguage(languageComboBox.getValue());
-            DialogManager.info(isRegistration ? "RegisterSuccess" : "LoginSuccess", localizator);
-            callback.run();
-
+            else {
+                User user = new User(loginField.getText(), passwordField.getText());
+                SessionHandler.setCurrentUser(user);
+                SessionHandler.setCurrentLanguage(languageComboBox.getValue());
+                DialogManager.info(isRegistration ? "RegisterSuccess" : "LoginSuccess", localizator);
+                callback.run();
+            }
         } catch (ClassNotFoundException | IOException e) {
             throw new RuntimeException(e);
-        } catch (UserAlreadyExistsException e) {
-            DialogManager.alert(isRegistration ? "UserAlreadyExists" : "UserNotFound", localizator);
         }
     }
 
     private boolean validateLogin() {
-        if (loginField.getText().isEmpty() || loginField.getText().length() > 40) {
-            DialogManager.alert("LoginFieldError", localizator); // todo добавить в локализацию
+        if (loginField.getText().isEmpty()) {
+            DialogManager.alert("LoginFieldError", localizator);
             return false;
         }
         return true;

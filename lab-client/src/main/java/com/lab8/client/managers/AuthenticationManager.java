@@ -4,6 +4,8 @@ import com.lab8.client.util.Console;
 import com.lab8.common.util.Request;
 import com.lab8.common.util.Response;
 import com.lab8.common.util.User;
+import com.lab8.common.util.executions.AnswerString;
+import com.lab8.common.util.executions.ExecutionResponse;
 
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -66,35 +68,16 @@ public class AuthenticationManager {
         }
     }
 
-
-    public static User sendAuthenticationRequest(User user, String inputCommand) throws IOException, ClassNotFoundException {
+    public static ExecutionResponse<?> sendAuthenticationRequest(User user, String inputCommand) throws IOException, ClassNotFoundException {
         Request request = new Request(inputCommand, user);
         ConnectionManager.getInstance().send(request);
         Response authResponse = ConnectionManager.getInstance().receive();
-        if (authResponse.getExecutionStatus() == null) {
-            return null;
-        }
-        if (authResponse.getExecutionStatus().getExitCode()) {
-            String id = authResponse.getExecutionStatus().getAnswer().toString();
-            user.setId(Integer.parseInt(id));
-            return user;
-        } else {
-            return null;
-        }
+        return authResponse.getExecutionStatus();
     }
 
-
-
-    public static User authenticateUser(String name, String pass, String inputCommand) throws IOException, ClassNotFoundException {
+    public static ExecutionResponse<?> authenticateUser(String name, String pass, String inputCommand) throws IOException, ClassNotFoundException {
         String username = name;
         String password = getHash(pass);
-        User user = sendAuthenticationRequest(new User(username, password), inputCommand);
-
-        if (user != null) {
-            return user;
-        }
-        return null;
+        return sendAuthenticationRequest(new User(username, password), inputCommand);
     }
-
-
 }

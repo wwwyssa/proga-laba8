@@ -32,7 +32,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -158,7 +157,6 @@ public class MainController {
         });
 
 
-
         idColumn.setCellValueFactory(product -> new SimpleLongProperty(product.getValue().getId()).asObject());
         ownerColumn.setCellValueFactory(product -> new SimpleStringProperty(product.getValue().getCreator()));
         nameColumn.setCellValueFactory(product -> new SimpleStringProperty(product.getValue().getName()));
@@ -229,13 +227,7 @@ public class MainController {
         });
         updatingManager.refresh();
         visualTab.setOnSelectionChanged(event -> visualisationManager.drawCollection(tableTable.getItems()));
-        //visualTab.setOnSelectionChanged(event -> visualisationManager.drowHohol(269, 100));
-        //visualisationManager.drawCollection(collection); //todo тут должна быть визуализация коллекции
     }
-
-
-
-
 
     @FXML
     public void exit() {
@@ -308,7 +300,6 @@ public class MainController {
             }
         }
         updatingManager.loadCollection();
-
     }
 
     @FXML
@@ -330,6 +321,7 @@ public class MainController {
                 DialogManager.alert("UnavailableError", localizator);
             }
         }
+        updatingManager.loadCollection();
     }
 
     @FXML
@@ -343,6 +335,7 @@ public class MainController {
         } catch (ClassNotFoundException | IOException e) {
             DialogManager.alert("UnavailableError", localizator);
         }
+        updatingManager.loadCollection();
     }
 
     @FXML
@@ -359,8 +352,8 @@ public class MainController {
         //todo по двойному клику нам надо изменять отдельные поля объекта
     }
 
-    public void changeLanguage() { //todo поменять на наши кнопки
-        /*
+    //todo по-хорошему абстрактный контроллер
+    public void changeLanguage() {
         userLabel.setText(localizator.getKeyString("UserLabel") + " " + SessionHandler.getCurrentUser().getName());
 
         exitButton.setText(localizator.getKeyString("Exit"));
@@ -368,38 +361,39 @@ public class MainController {
         helpButton.setText(localizator.getKeyString("Help"));
         infoButton.setText(localizator.getKeyString("Info"));
         addButton.setText(localizator.getKeyString("Add"));
-        updateButton.setText(localizator.getKeyString("Update"));
         removeByIdButton.setText(localizator.getKeyString("RemoveByID"));
         clearButton.setText(localizator.getKeyString("Clear"));
         executeScriptButton.setText(localizator.getKeyString("ExecuteScript"));
-        headButton.setText(localizator.getKeyString("Head"));
-        addIfMaxButton.setText(localizator.getKeyString("AddIfMax"));
-        addIfMinButton.setText(localizator.getKeyString("AddIfMin"));
-        sumOfPriceButton.setText(localizator.getKeyString("SumOfPrice"));
-        filterByPriceButton.setText(localizator.getKeyString("FilterByPrice"));
-        filterContainsPartNumberButton.setText(localizator.getKeyString("FilterContainsPartNumber"));
+        removeGreaterButton.setText(localizator.getKeyString("RemoveGreater"));
+        removeGreaterKeyButton.setText(localizator.getKeyString("RemoveGreaterKey"));
+        printFieldAscendingPartNumberButton.setText(localizator.getKeyString("PrintFieldAscendingPartNumber"));
+        averageOfManufactureCostButton.setText(localizator.getKeyString("AverageOfManufactureCost"));
+        minByNameButton.setText(localizator.getKeyString("MinByName"));
 
         tableTab.setText(localizator.getKeyString("TableTab"));
         visualTab.setText(localizator.getKeyString("VisualTab"));
 
+        idColumn.setText(localizator.getKeyString("ID"));
         ownerColumn.setText(localizator.getKeyString("Owner"));
         nameColumn.setText(localizator.getKeyString("Name"));
-        dateColumn.setText(localizator.getKeyString("CreationDate"));
+        coordinatesXColumn.setText(localizator.getKeyString("CoordinatesX"));
+        coordinatesYColumn.setText(localizator.getKeyString("CoordinatesY"));
+        creationDateColumn.setText(localizator.getKeyString("CreationDate"));
         priceColumn.setText(localizator.getKeyString("Price"));
         partNumberColumn.setText(localizator.getKeyString("PartNumber"));
+        manufactureCostColumn.setText(localizator.getKeyString("ManufactureCost"));
         unitOfMeasureColumn.setText(localizator.getKeyString("UnitOfMeasure"));
-
         manufacturerIdColumn.setText(localizator.getKeyString("ManufacturerId"));
         manufacturerNameColumn.setText(localizator.getKeyString("ManufacturerName"));
         manufacturerEmployeesCountColumn.setText(localizator.getKeyString("ManufacturerEmployeesCount"));
         manufacturerTypeColumn.setText(localizator.getKeyString("ManufacturerType"));
-        manufacturerStreetColumn.setText(localizator.getKeyString("ManufacturerStreet"));
-        manufacturerZipCodeColumn.setText(localizator.getKeyString("ManufacturerZipCode"));
+        manufacturerOfficialAddressStreetColumn.setText(localizator.getKeyString("ManufacturerStreet"));
+        manufacturerOfficialAddressTownXColumn.setText(localizator.getKeyString("ManufacturerTownX"));
+        manufacturerOfficialAddressTownYColumn.setText(localizator.getKeyString("ManufacturerTownY"));
+        manufacturerOfficialAddressTownZColumn.setText(localizator.getKeyString("ManufacturerTownZ"));
 
         editController.changeLanguage();
-
-        loadCollection();
-        */
+        //updatingManager.loadCollection();
     }
 
     public void setCollection(List<Product> collection) {

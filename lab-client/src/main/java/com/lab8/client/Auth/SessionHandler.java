@@ -4,7 +4,7 @@ import com.lab8.common.util.User;
 
 public class SessionHandler {
     public static User currentUser = null;
-    public static String currentLanguage = "English(CA)";
+    public static String currentLanguage = "Русский";
 
     public static User getCurrentUser() {
         return currentUser;

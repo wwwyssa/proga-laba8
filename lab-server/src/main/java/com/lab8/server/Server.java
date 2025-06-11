@@ -311,20 +311,19 @@ public class Server {
 
     private static Response processRequest(Request request) throws ClosedChannelException, SQLException {
         if (request.getCommand()[0].equals("register") || request.getCommand()[0].equals("login")) {
-            int authStatus;
+            ExecutionResponse<AnswerString> authStatus;
             AuthManager authManager = AuthManager.getInstance();
             if ("register".equals(request.getCommand()[0])) {
                 authStatus = authManager.registerUser(request.getUser().getName(), request.getUser().getPassword());
             } else {
                 authStatus = authManager.authenticateUser(request.getUser().getName(), request.getUser().getPassword());
             }
-            if (authStatus != -1) {
-                logger.info("Зрегистрировался User: " + request.getUser().getName());
+            if (authStatus.getExitCode()) {
+                logger.info(authStatus.getAnswer().getAnswer() + ' ' + request.getUser().getName());
             } else {
-                logger.warning("Ошибка " + " User: " + request.getUser().getName());
+                logger.warning("Ошибка " + authStatus.getAnswer().getAnswer()  + " User: " + request.getUser().getName());
             }
-            ExecutionResponse<?> authStatusNew = new ExecutionResponse(authStatus != -1, new AnswerString(Integer.toString(authStatus)));
-            return new Response(authStatusNew);
+            return new Response(authStatus);
         } else {
 
             ExecutionResponse<?> executionStatus = runner.launchCommand(request.getCommand(), request.getProduct(), request.getUser());

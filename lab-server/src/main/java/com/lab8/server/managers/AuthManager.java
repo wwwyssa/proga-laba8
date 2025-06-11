@@ -1,5 +1,7 @@
 package com.lab8.server.managers;
 
+import com.lab8.common.util.executions.AnswerString;
+import com.lab8.common.util.executions.ExecutionResponse;
 import com.lab8.server.Server;
 import com.lab8.server.dao.UserDAO;
 import com.lab8.server.util.HibernateUtil;
@@ -7,8 +9,11 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Properties;
 
 public class AuthManager {
     private String pepper;
@@ -16,10 +21,17 @@ public class AuthManager {
     private static volatile AuthManager instance;
 
     private AuthManager() {
-        String url = "jdbc:postgresql://localhost:5432/laba7";
-        String user = "postgres";
-        String password = "123";
-        this.sessionFactory = HibernateUtil.getSessionFactory(url, user, password);
+        try (FileInputStream input = new FileInputStream("dbconfig.properties")) {
+            Properties properties = new Properties();
+            properties.load(input);
+            String url = properties.getProperty("db.url");
+            String user = properties.getProperty("db.user"); // sXXXXXX
+            String password = properties.getProperty("db.password"); // пароль из файла .pgpass
+            this.sessionFactory = HibernateUtil.getSessionFactory(url, user, password);
+        } catch (IOException e) {
+            Server.logger.severe("Failed to load database properties: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     public static AuthManager getInstance() {
@@ -33,7 +45,7 @@ public class AuthManager {
         return instance;
     }
 
-    public int registerUser(String login, String password) throws SQLException {
+    public ExecutionResponse<AnswerString> registerUser(String login, String password) throws SQLException {
         Server.logger.info("Создание нового пользователя " + login);
 
         var salt = PasswordManager.getSalt();
@@ -52,19 +64,17 @@ public class AuthManager {
                 transaction.commit();
 
                 var newId = dao.getId();
-                Server.logger.info("Пользователь успешно создан, id#" + newId);
-                return newId;
+                return new ExecutionResponse<>(true, new AnswerString("Пользователь успешно создан с id#" + newId));
             } catch (Exception e) {
                 if (transaction != null) {
                     transaction.rollback();
                 }
-                Server.logger.info("Ошибка при создании пользователя " + login + e);
-                return -1; // Ошибка при создании пользователя
+                return new ExecutionResponse<>(false, new AnswerString("UserAlreadyExists")); // todo проверить оно ли
             }
         }
     }
 
-    public int authenticateUser(String login, String password) throws SQLException {
+    public ExecutionResponse<AnswerString> authenticateUser(String login, String password) throws SQLException {
         Server.logger.info("Аутентификация пользователя " + login);
 
         try (Session session = sessionFactory.openSession()) {
@@ -78,8 +88,7 @@ public class AuthManager {
                 List<UserDAO> result = query.getResultList();
 
                 if (result.isEmpty()) {
-                    Server.logger.info("Неправильный пароль для пользователя " + login);
-                    return -1; // Пользователь не найден
+                    return new ExecutionResponse<>(false, new AnswerString("UserNotFound"));
                 }
 
                 var user = result.get(0);
@@ -91,15 +100,10 @@ public class AuthManager {
 
                 var actualHashedPassword = PasswordManager.getHash(password, salt);
                 if (expectedHashedPassword.equals(actualHashedPassword)) {
-                    Server.logger.info("Пользователь " + login + " аутентифицирован c id#" + id);
-                    return id; // Успешная аутентификация
+                    return new ExecutionResponse<>(true, new AnswerString("Пользователь " + login + " аутентифицирован c id#" + id));
                 }
 
-                Server.logger.info(
-                        "Неправильный пароль для пользователя " + login +
-                                ". Ожидалось '" + expectedHashedPassword + "', получено '" + actualHashedPassword + "'"
-                );
-                return -1;
+                return new ExecutionResponse<>(false, new AnswerString("WrongPassword"));
             } catch (Exception e) {
                 if (transaction != null) {
                     transaction.rollback();

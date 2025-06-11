@@ -23,20 +23,18 @@ import java.util.Locale;
 
 // Вариант 9886
 public class App extends Application {
-
     private Stage mainStage;
     private Localizator localizator;
     static Console console = new DefaultConsole();
     private static int attempts = 1;
     private static final ConnectionManager networkManager = ConnectionManager.getInstance();
-    private static Map<String, Pair<ArgumentValidator, Boolean>> commandsData;
+
     public static void main(String[] args) {
         console.println("Запуск клиента..."); //fixme клиент не может переподключиться после открытия окна
         do {
             try {
                 networkManager.connect();
                 attempts = 1;
-
                 launch();
             } catch (IOException e) {
                 console.printError("Не удалось подключиться к серверу. Проверьте, запущен ли сервер и доступен ли он по адресу " + networkManager.getPort() + ":" + networkManager.getHost() + " попытка " + attempts);
@@ -51,8 +49,8 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) {
-        localizator = new Localizator(ResourceBundle.getBundle("locales/gui", new Locale("en", "CA")));
-        SessionHandler.setCurrentLanguage("English(CA)");
+        localizator = new Localizator(ResourceBundle.getBundle("locales/gui", new Locale("ru", "RU")));
+        SessionHandler.setCurrentLanguage("Русский");
         mainStage = stage;
         authStage();
     }
@@ -65,7 +63,7 @@ public class App extends Application {
         Stage editStage = new Stage();
         editStage.setScene(editScene);
         editStage.setResizable(false);
-        editStage.setTitle("Edit Product");
+        editStage.setTitle("Lab 8 Client");
         EditController editController = editLoader.getController();
 
         editController.setStage(editStage);
@@ -79,6 +77,7 @@ public class App extends Application {
         MainController mainController = mainLoader.getController();
         mainController.setLocalizator(localizator);
         mainController.setEditController(createEditController());
+        mainController.setAuthCallback(this::authStage);
 
         mainStage.setScene(new Scene(mainRoot));
         mainStage.setTitle("Lab 8 Client");
@@ -93,7 +92,7 @@ public class App extends Application {
         authController.setLocalizator(localizator);
 
         mainStage.setScene(new Scene(authRoot));
-        mainStage.setTitle("Products");
+        mainStage.setTitle("Lab 8 Client");
         mainStage.setResizable(false);
         mainStage.show();
     }

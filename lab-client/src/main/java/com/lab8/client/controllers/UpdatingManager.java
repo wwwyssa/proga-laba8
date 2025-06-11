@@ -7,6 +7,7 @@ import com.lab8.client.util.Localizator;
 import com.lab8.common.models.Product;
 import com.lab8.common.util.Request;
 import com.lab8.common.util.Response;
+import com.lab8.common.util.executions.ListAnswer;
 import javafx.application.Platform;
 
 import java.io.IOException;
@@ -44,8 +45,12 @@ public class UpdatingManager {
         try {
             ConnectionManager.getInstance().send(new Request("show", SessionHandler.getCurrentUser()));
             Response response = ConnectionManager.getInstance().receive();
-            mainController.setCollection((List<Product>) response.getExecutionStatus().getAnswer().getAnswer()); //todo pizdec
-            //visualise(true);
+            if (response.getExecutionStatus().getAnswer() instanceof ListAnswer) {
+                mainController.setCollection((List<Product>) response.getExecutionStatus().getAnswer().getAnswer());
+            }
+            else {
+                DialogManager.alert("InvalidResponse", localizator);
+            }
         } catch (ClassNotFoundException | IOException e) {
             DialogManager.alert("UnavailableError", localizator);
         }
