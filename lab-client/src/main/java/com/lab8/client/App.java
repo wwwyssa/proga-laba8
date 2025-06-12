@@ -4,7 +4,6 @@ import com.lab8.client.Auth.SessionHandler;
 import com.lab8.client.controllers.AuthController;
 import com.lab8.client.controllers.EditController;
 import com.lab8.client.controllers.MainController;
-import com.lab8.client.managers.ConnectionManager;
 import com.lab8.client.util.Console;
 import com.lab8.client.util.DefaultConsole;
 import com.lab8.client.util.Localizator;
@@ -23,7 +22,6 @@ public class App extends Application {
     private Stage mainStage;
     private Localizator localizator;
     static Console console = new DefaultConsole();
-    private static final ConnectionManager networkManager = ConnectionManager.getInstance();
 
     public static void main(String[] args) {
         launch();
