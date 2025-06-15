@@ -5,17 +5,20 @@ import com.lab8.client.managers.ConnectionManager;
 import com.lab8.client.managers.DialogManager;
 import com.lab8.client.managers.ExecuteScript;
 import com.lab8.client.util.Localizator;
+import com.lab8.client.util.ServerRequestTask;
 import com.lab8.common.models.Organization;
 import com.lab8.common.models.Product;
 import com.lab8.common.util.Request;
 import com.lab8.common.util.Response;
 import com.lab8.common.util.executions.ExecutionResponse;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -166,6 +169,7 @@ public class MainController {
             }
             return null;
         });
+
         manufacturerEmployeesCountColumn.setCellValueFactory(product -> {
             if (product.getValue().getManufacturer() != null) {
                 return new SimpleIntegerProperty(product.getValue().getManufacturer().getEmployeesCount()).asObject();
@@ -217,8 +221,13 @@ public class MainController {
 
         tableTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         updatingManager.refresh();
-        visualTab.setOnSelectionChanged(event -> visualisationManager.drawCollection(tableTable.getItems(), localizator));
-
+        // Java
+        visualTab.setOnSelectionChanged(event -> {
+            if (visualTab.isSelected()) {
+                updatingManager.stopRefreshing();
+                visualisationManager.drawCollection(tableTable.getItems(), localizator);
+            }
+        });
     }
 
     @FXML
@@ -236,13 +245,41 @@ public class MainController {
 
     @FXML
     public void help() {
-        try {
-            ConnectionManager.getInstance().send(new Request("help", SessionHandler.getCurrentUser()));
-            Response response = ConnectionManager.getInstance().receive();
-            DialogManager.createAlert(localizator.getKeyString("Help"), localizator.getKeyString("HelpResult"), Alert.AlertType.INFORMATION, true);
-        } catch (ClassNotFoundException | IOException e) {
+        ServerRequestTask task = new ServerRequestTask(new Request("help", SessionHandler.getCurrentUser()));
+
+        task.setOnSucceeded(event -> {
+            Response response = task.getValue();
+            ExecutionResponse<?> status = response.getExecutionStatus();
+            if (status != null && status.getExitCode()) {
+                DialogManager.createAlert(
+                    localizator.getKeyString("Help"),
+                    localizator.getKeyString("HelpResult"),
+                    Alert.AlertType.INFORMATION,
+                    true
+                );
+            } else {
+                String errorMessage = (status != null && status.getAnswer() != null)
+                    ? status.getAnswer().toString()
+                    : localizator.getKeyString("UnknownError");
+
+                DialogManager.createAlert(
+                    localizator.getKeyString("Error"),
+                    errorMessage,
+                    Alert.AlertType.ERROR,
+                    true
+                );
+            }
+        });
+
+        task.setOnFailed(event -> {
+            Throwable exception = task.getException();
+            exception.printStackTrace(); // or use logger
             DialogManager.alert("UnavailableError", localizator);
-        }
+        });
+
+        Thread thread = new Thread(task);
+        thread.setDaemon(true); // ensures the thread doesn't block application exit
+        thread.start();
     }
 
     @FXML
@@ -338,20 +375,46 @@ public class MainController {
         if (input.isPresent()) {
             try {
                 long id = Long.parseLong(input.get());
-                ConnectionManager.getInstance().send(new Request(commandInRequest + ' ' + id, SessionHandler.getCurrentUser()));
-                Response response = ConnectionManager.getInstance().receive();
-                if (response.getExecutionStatus().getExitCode()) {
-                    DialogManager.createAlert(localizator.getKeyString(commandLocalizatorKey), localizator.getKeyString(commandLocalizatorKey + "Suc"), Alert.AlertType.INFORMATION, false);
-                } else {
-                    DialogManager.createAlert(localizator.getKeyString("Error"), response.getExecutionStatus().getAnswer().toString(), Alert.AlertType.ERROR, false);
-                }
+                ServerRequestTask task = new ServerRequestTask(new Request(commandInRequest + ' ' + id, SessionHandler.getCurrentUser()));
+
+                task.setOnSucceeded(event -> {
+                    Response response = task.getValue();
+                    ExecutionResponse<?> status = response.getExecutionStatus();
+                    if (status != null && status.getExitCode()) {
+                        DialogManager.createAlert(
+                            localizator.getKeyString(commandLocalizatorKey),
+                            localizator.getKeyString(commandLocalizatorKey + "Suc"),
+                            Alert.AlertType.INFORMATION,
+                            false
+                        );
+                    } else {
+                        String errorMessage = (status != null && status.getAnswer() != null)
+                            ? status.getAnswer().toString()
+                            : localizator.getKeyString("UnknownError");
+
+                        DialogManager.createAlert(
+                            localizator.getKeyString("Error"),
+                            errorMessage,
+                            Alert.AlertType.ERROR,
+                            false
+                        );
+                    }
+                    updatingManager.loadCollection();
+                });
+
+                task.setOnFailed(event -> {
+                    Throwable exception = task.getException();
+                    exception.printStackTrace(); // or use logger
+                    DialogManager.alert("UnavailableError", localizator);
+                });
+
+                Thread thread = new Thread(task);
+                thread.setDaemon(true); // ensures the thread doesn't block application exit
+                thread.start();
             } catch (NumberFormatException e) {
                 DialogManager.createAlert(localizator.getKeyString("Error"), localizator.getKeyString("InvalidIDFormat"), Alert.AlertType.ERROR, false);
-            } catch (ClassNotFoundException | IOException e) {
-                DialogManager.alert("UnavailableError", localizator);
             }
         }
-        updatingManager.loadCollection();
     }
 
     @FXML
@@ -369,35 +432,93 @@ public class MainController {
         editController.clear();
         editController.show();
         Product product = editController.getProduct();
+
         if (product != null) {
-            try {
-                ConnectionManager.getInstance().send(new Request("add", product, SessionHandler.getCurrentUser()));
-                Response response = ConnectionManager.getInstance().receive();
-                if (response.getExecutionStatus().getExitCode()){
-                    DialogManager.createAlert(localizator.getKeyString("Add"), localizator.getKeyString("AddResult"), Alert.AlertType.INFORMATION, false);
+            ServerRequestTask task = new ServerRequestTask(new Request("add", product, SessionHandler.getCurrentUser()));
+
+            task.setOnSucceeded(event -> {
+                Response response = task.getValue();
+                ExecutionResponse<?> status = response.getExecutionStatus();
+                if (status != null && status.getExitCode()) {
+                    DialogManager.createAlert(
+                        localizator.getKeyString("Add"),
+                        localizator.getKeyString("AddResult"),
+                        Alert.AlertType.INFORMATION,
+                        false
+                    );
+                } else {
+                    String errorMessage = (status != null && status.getAnswer() != null)
+                        ? status.getAnswer().toString()
+                        : localizator.getKeyString("UnknownError");
+
+                    DialogManager.createAlert(
+                        localizator.getKeyString("Error"),
+                        errorMessage,
+                        Alert.AlertType.ERROR,
+                        false
+                    );
                 }
-                else {
-                    DialogManager.createAlert(localizator.getKeyString("Error"), response.getExecutionStatus().getAnswer().toString(), Alert.AlertType.ERROR, false);
-                }
+
                 updatingManager.loadCollection();
-            } catch (ClassNotFoundException | IOException e) {
+            });
+
+            task.setOnFailed(event -> {
+                Throwable exception = task.getException();
+                exception.printStackTrace(); // or use logger
                 DialogManager.alert("UnavailableError", localizator);
-            }
+            });
+
+            Thread thread = new Thread(task);
+            thread.setDaemon(true); // ensures the thread doesn't block application exit
+            thread.start();
         }
     }
 
+
     @FXML
     private void removeGreater() {
-        try {
-            editController.clear();
-            editController.show();
-            Product product = editController.getProduct();
-            ConnectionManager.getInstance().send(new Request("removeGreater", product, SessionHandler.getCurrentUser()));
-            Response response = ConnectionManager.getInstance().receive(); // fixme и че это
-        } catch (ClassNotFoundException | IOException e) {
-            DialogManager.alert("UnavailableError", localizator);
+        editController.clear();
+        editController.show();
+        Product product = editController.getProduct();
+
+        if (product != null) {
+            ServerRequestTask task = new ServerRequestTask(new Request("removeGreater", product, SessionHandler.getCurrentUser()));
+
+            task.setOnSucceeded(event -> {
+                Response response = task.getValue();
+                ExecutionResponse<?> status = response.getExecutionStatus();
+                if (status != null && status.getExitCode()) {
+                    DialogManager.createAlert(
+                        localizator.getKeyString("RemoveGreater"),
+                        localizator.getKeyString("RemoveGreaterResult"),
+                        Alert.AlertType.INFORMATION,
+                        false
+                    );
+                    updatingManager.loadCollection();
+                } else {
+                    String errorMessage = (status != null && status.getAnswer() != null)
+                        ? status.getAnswer().toString()
+                        : localizator.getKeyString("UnknownError");
+
+                    DialogManager.createAlert(
+                        localizator.getKeyString("Error"),
+                        errorMessage,
+                        Alert.AlertType.ERROR,
+                        false
+                    );
+                }
+            });
+
+            task.setOnFailed(event -> {
+                Throwable exception = task.getException();
+                exception.printStackTrace(); // or use logger
+                DialogManager.alert("UnavailableError", localizator);
+            });
+
+            Thread thread = new Thread(task);
+            thread.setDaemon(true); // ensures the thread doesn't block application exit
+            thread.start();
         }
-        updatingManager.loadCollection();
     }
 
     @FXML
@@ -416,36 +537,67 @@ public class MainController {
     }
 
 
+    @FXML
     private void doubleClickUpdate(Product product) {
-        // System.out.print("Double click on row: " + product);
         if (product.getCreator().equals(SessionHandler.getCurrentUser().getName())) {
             editController.fill(product);
             editController.show();
             Product updatedProduct = editController.getProduct();
             if (updatedProduct != null) {
-                try {
-                    updatedProduct.setId(product.getId());
-                    Organization manufacturer = updatedProduct.getManufacturer();
-                    manufacturer.setId(product.getManufacturer().getId());
-                    updatedProduct.setManufacturer(manufacturer);
-                    ConnectionManager.getInstance().send(new Request("update", updatedProduct, SessionHandler.getCurrentUser()));
-                    Response response = ConnectionManager.getInstance().receive();
-                    if (response.getExecutionStatus().getExitCode()) {
-                        DialogManager.createAlert(localizator.getKeyString("update"), localizator.getKeyString("update"), Alert.AlertType.INFORMATION, false);
-                        // Обновление коллекции в TableView
+                updatedProduct.setId(product.getId());
+                Organization manufacturer = updatedProduct.getManufacturer();
+                manufacturer.setId(product.getManufacturer().getId());
+                updatedProduct.setManufacturer(manufacturer);
+
+                ServerRequestTask task = new ServerRequestTask(new Request("update", updatedProduct, SessionHandler.getCurrentUser()));
+
+                task.setOnSucceeded(event -> {
+                    Response response = task.getValue();
+                    ExecutionResponse<?> status = response.getExecutionStatus();
+                    if (status != null && status.getExitCode()) {
+                        DialogManager.createAlert(
+                            localizator.getKeyString("update"),
+                            localizator.getKeyString("update"),
+                            Alert.AlertType.INFORMATION,
+                            false
+                        );
+
+                        // Update the collection in TableView
                         int index = tableTable.getItems().indexOf(product);
                         if (index != -1) {
                             tableTable.getItems().set(index, updatedProduct);
                         }
                     } else {
-                        DialogManager.createAlert(localizator.getKeyString("Error"), response.getExecutionStatus().getAnswer().toString(), Alert.AlertType.ERROR, false);
+                        String errorMessage = (status != null && status.getAnswer() != null)
+                            ? status.getAnswer().toString()
+                            : localizator.getKeyString("UnknownError");
+
+                        DialogManager.createAlert(
+                            localizator.getKeyString("Error"),
+                            errorMessage,
+                            Alert.AlertType.ERROR,
+                            false
+                        );
                     }
-                } catch (ClassNotFoundException | IOException e) {
+                });
+
+                task.setOnFailed(event -> {
+                    Throwable exception = task.getException();
+                    exception.printStackTrace(); // or use logger
                     DialogManager.alert("UnavailableError", localizator);
-                }
+                });
+
+                Thread thread = new Thread(task);
+                thread.setDaemon(true); // ensures the thread doesn't block application exit
+                thread.start();
             }
         } else {
-            DialogManager.createAlert(localizator.getKeyString("Error"), localizator.getKeyString("NotYourProduct"), Alert.AlertType.ERROR, false);
+            DialogManager.createAlert(
+                localizator.getKeyString("Error"),
+                localizator.getKeyString("NotYourProduct"),
+                Alert.AlertType.ERROR,
+                false
+            );
         }
     }
 

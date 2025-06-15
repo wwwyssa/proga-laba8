@@ -9,6 +9,8 @@ import com.lab8.common.validators.NoArgumentsValidator;
 import com.lab8.server.managers.CollectionManager;
 import com.lab8.server.util.AskingCommand;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Класс, представляющий команду добавления нового продукта в коллекцию.
  */
@@ -31,6 +33,12 @@ public class Add  extends AskingCommand<NoArgumentsValidator> {
     @Override
     public ExecutionResponse innerExecute(Product product, User user) {
         product.setCreator(user.getName());
+        try{
+            sleep(5000)   ; // Имитируем задержку для демонстрации
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); // Восстанавливаем прерывание
+            return new ExecutionResponse(false, new AnswerString("Команда была прервана."));
+        }
         System.out.println(product);
         System.out.println("User: " + user.getName());
         collectionManager.addProduct(product, user);
