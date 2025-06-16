@@ -51,7 +51,9 @@ public class UpdatingManager {
             ConnectionManager.getInstance().send(new Request("show", SessionHandler.getCurrentUser()));
             Response response = ConnectionManager.getInstance().receive();
             if (response.getExecutionStatus().getAnswer() instanceof ListAnswer) {
-                mainController.setCollection((List<Product>) response.getExecutionStatus().getAnswer().getAnswer());
+                List<Product> products = (List<Product>) response.getExecutionStatus().getAnswer().getAnswer();
+                mainController.setCollection(products);
+                mainController.getVisualisationManager().drawCollection(products, localizator);
             }
             else {
                 DialogManager.alert("InvalidResponse", localizator);

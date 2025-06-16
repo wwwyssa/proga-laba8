@@ -12,13 +12,11 @@ import com.lab8.common.util.Request;
 import com.lab8.common.util.Response;
 import com.lab8.common.util.executions.ExecutionResponse;
 
-import javafx.application.Platform;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -135,9 +133,11 @@ public class MainController {
     @FXML
     private AnchorPane visualPane;
 
+    private VisualisationManager visualisationManager;
+
     @FXML
     public void initialize() {
-        VisualisationManager visualisationManager = new VisualisationManager(visualPane);
+        visualisationManager = new VisualisationManager(visualPane);
         languageComboBox.setItems(FXCollections.observableArrayList(localeMap.keySet()));
         languageComboBox.setStyle("-fx-font: 13px \"Sergoe UI\";");
         languageComboBox.setValue(SessionHandler.getCurrentLanguage());
@@ -662,5 +662,9 @@ public class MainController {
     public void setLocalizator(Localizator localizator) {
         this.localizator = localizator;
         updatingManager.setLocalizator(localizator);
+    }
+
+    public VisualisationManager getVisualisationManager() {
+        return visualisationManager;
     }
 }
